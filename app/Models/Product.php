@@ -56,8 +56,9 @@ class Product extends Model
 
         return $sql;
     }
-        public static function storeProduct($request, $image)
-        {
+    
+    public static function storeProduct($request, $image)
+    {
         return self::create([
             'image'               => $image->hashName(),
             'title'               => $request->title,

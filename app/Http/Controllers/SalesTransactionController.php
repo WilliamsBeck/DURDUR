@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Mail;
 
 class SalesTransactionController extends Controller
 {
@@ -100,7 +100,14 @@ class SalesTransactionController extends Controller
             $transaction->details()->create($detail);
         }
 
-        return redirect()->route('transactions.index')->with(['success' => 'Transaction Created Successfully!']);
+      
+        // === Kirim email ke customer (dengan parameter) ===
+        $this->sendEmail($transaction->customer_email, $transaction->id);
+
+        
+
+        return redirect()->route('transactions.index')
+            ->with(['success' => 'Transaction Created and Email Sent Successfully!']);
     }
 
     public function show(string $id): View
@@ -200,4 +207,71 @@ class SalesTransactionController extends Controller
 
         return redirect()->route('transactions.index')->with(['success' => 'Transaction Deleted Successfully!']);
     }
+
+
+       public function sendEmail($to, $id)
+        {
+            // get transaksi by ID
+            $transaksi_penjualan = new SalesTransaction();
+            $data = $transaksi_penjualan->get_transaksi_penjualan_detail()
+                ->where("sales_transactions.id", $id)
+                ->get();
+
+            // hitung total harga
+            $total_harga['transaksi'] = 0;
+            foreach ($data as $key => $value) {
+                $total_harga['transaksi'] += $value['total_harga'];
+            }
+
+            // ambil 1 transaksi utama (data pertama dari collection)
+            $transaction = $data[0]; 
+
+            // variabel yang dikirim ke view
+            $transaksi_ = [
+                'transaction' => $transaction,
+                'data' => $data,
+                'total_harga' => $total_harga
+            ];
+
+            // Mengirim email
+            Mail::send('emails.transaksi_detail', $transaksi_, function ($message) use ($data, $total_harga) {
+                $customerEmail = $data[0]->customer_email ?? 'default@email.com';
+
+                $message->to($customerEmail)
+                    ->subject("Detail Transaksi Anda - Total Rp " . number_format($total_harga['transaksi'], 0, ',', '.'));
+            });
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+     public function lihat()
+            {
+                return SalesTransaction::all();
+
+            }
+
+            public function lihat_id($id)
+            {
+                $sales = SalesTransaction::find($id);
+                    if (!$sales) return response()->json(['message' => 'Transaction not found'], 404);
+                    return $sales;
+
+            }
+
+
+
+
 }

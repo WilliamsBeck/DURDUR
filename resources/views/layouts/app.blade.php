@@ -38,6 +38,16 @@
         <a href="{{ route('suppliers.index') }}" class="nav-link @if(request()->routeIs('suppliers.*')) active @endif">
             <i class="fas fa-truck me-2"></i> Supplier
         </a>
+
+        <form action="{{ route('logout') }}" method="POST" class="mt-auto text-center mb-3">
+            @csrf
+            <button type="submit" class="btn btn-danger w-75">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </button>
+        </form>
+
+
+
     </div>
 
     {{-- KONTEN UTAMA --}}

@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $pendapatanHariIni = SalesTransaction::whereDate('created_at', Carbon::today())
             ->sum('grand_total');
             
-        // 1.5. TOTAL PRODUK TERJUAL HARI INI (TAMBAHAN BARU)
+        // 1.5. TOTAL PRODUK TERJUAL HARI INI
         $totalProdukTerjualHariIni = SalesTransactionDetail::whereDate('created_at', Carbon::today())
             ->sum('quantity');
 
