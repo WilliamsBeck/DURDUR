@@ -89,8 +89,8 @@
     </div>
 
     <div class="content">
-        <p>Halo <strong>{{ $data[0]->customer_email ?? 'Pelanggan' }}</strong>,</p>
-        <p>Berikut adalah detail pembelian Anda:</p>
+        <p>Halo <strong>{{ $transaction->customer_email ?? 'Pelanggan' }}</strong>,</p>
+        <p>Berikut adalah detail pembelian Anda (ID: #{{ $transaction->id }}):</p>
 
         <table>
             <thead>
@@ -99,17 +99,22 @@
                     <th>Kategori</th>
                     <th>Harga</th>
                     <th>Qty</th>
-                    <th>Total</th>
+                    <th>Subtotal</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($data as $item)
+                @foreach($details as $item)
                 <tr>
-                    <td>{{ $item->product_title }}</td>
-                    <td>{{ $item->product_category_name }}</td>
-                    <td>Rp {{ number_format($item->product_price, 0, ',', '.') }}</td>
+                    <td>{{ $item->product->title ?? 'Produk Dihapus' }}</td>
+                    
+                    <td>
+                        {{ $item->product->category_product->product_category_name ?? '-' }}
+                    </td>
+                    
+                    <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
+                    
+                    <td>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -117,10 +122,9 @@
 
         <p class="total">Total Pembayaran: 
             <span class="highlight">
-                Rp {{ number_format($total_harga['transaksi'], 0, ',', '.') }}
+                Rp {{ number_format($transaction->grand_total, 0, ',', '.') }}
             </span>
         </p>
-
 
         <p>Terima kasih telah berbelanja bersama kami 🙏</p>
     </div>

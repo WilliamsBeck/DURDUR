@@ -33,12 +33,19 @@
                 <tbody>
                     @forelse ($products as $product)
                         <tr>
-                            <td>
-                                <img src="{{ asset('/storage/images/'.$product->image) }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                            <td class="text-center">
+                                <img src="{{ asset('storage/images/' . $product->image) }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;" alt="Product Image">
                             </td>
                             <td><strong>{{ $product->title }}</strong></td>
-                            <td>{{ $product->product_category_name ?? '-' }}</td>
-                            <td>{{ $product->supplier_name ?? '-' }}</td>
+                            
+                            <td>
+                                {{ $product->category_product->product_category_name ?? 'No Category' }}
+                            </td>
+
+                            <td>
+                                {{ $product->supplier->supplier_name ?? 'No Supplier' }}
+                            </td>
+
                             <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                             <td>{{ $product->stock }}</td>
                             <td class="text-center">

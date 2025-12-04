@@ -9,20 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('sales_transaction_details', function (Blueprint $table) {
-            $table->decimal('grand_total', 15, 2)->default(0);
+            // Menambah kolom price (harga satuan) setelah quantity
+            $table->bigInteger('price')->default(0)->after('quantity');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::table('sales_transaction_details', function (Blueprint $table) {
-            //
+            $table->dropColumn('price');
         });
     }
 };

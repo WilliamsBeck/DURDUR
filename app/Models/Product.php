@@ -30,18 +30,17 @@ class Product extends Model
        /**
      * Relasi ke Supplier. 
      */
-        public function supplier(): BelongsTo
+    public function category_product()
+        {
+            // Parameter ke-2 ('product_category_id') adalah nama kolom foreign key di tabel products
+            return $this->belongsTo(Category_product::class, 'product_category_id');
+        }
+
+        // Relasi ke tabel Supplier
+    public function supplier()
         {
             return $this->belongsTo(Supplier::class, 'supplier_id');
         }
-
-    /**
-     * Relasi ke Kategori Produk. 
-     */
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category_product::class, 'category_product_id');
-    }
 
     public function get_product()
     {

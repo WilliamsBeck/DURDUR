@@ -40,7 +40,7 @@ class DashboardController extends Controller
         $produkTertinggi = SalesTransactionDetail::select(
                 'product_id', 
                 DB::raw('SUM(quantity) as total_quantity'), 
-                DB::raw('SUM(subtotal) as total_omzet') 
+                DB::raw('SUM(grand_total) as total_omzet') 
             )
             ->whereDate('created_at', Carbon::today())
             ->groupBy('product_id')
