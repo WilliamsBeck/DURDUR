@@ -23,11 +23,13 @@ class Product extends Model
         'supplier_id',
         'description',
         'price',
+        'cost_price',
         'stock',
-        
+        // Tambahkan kolom status
+        'status', 
     ];
 
-       /**
+    /**
      * Relasi ke Supplier. 
      */
     public function category_product()
@@ -44,18 +46,30 @@ class Product extends Model
 
     public function get_product()
     {
-        // get all products
+        // get all active products (Hanya ambil yang statusnya 'active')
         $sql = $this->select(
             "products.*", 
             "category_product.product_category_name as product_category_name",
             "supplier.supplier_name as supplier_name"
         )
         ->leftjoin('category_product', 'category_product.id', '=', 'products.product_category_id')
-        ->leftjoin('supplier', 'supplier.id', '=', 'products.supplier_id');
+        ->leftjoin('supplier', 'supplier.id', '=', 'products.supplier_id')
+        // Tambahkan filter status ENUM
+        ->where('products.status', 'active');
 
         return $sql;
     }
     
+    // =========================================================================
+    // Scope Lokal untuk memfilter produk aktif (status = 'active')
+    // Digunakan di Controller seperti: Product::active()->get()
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+    // =========================================================================
+
+
     public static function storeProduct($request, $image)
     {
         return self::create([
@@ -65,13 +79,13 @@ class Product extends Model
             'supplier_id'         => $request->supplier_id,
             'description'         => $request->description,
             'price'               => $request->price,
-            'stock'               => $request->stock,
+            'cost_price'          => $request->cost_price,
+            'status'              => 'active', // Default status saat membuat
+            
         ]);
     }
 
-
-
-    // Tambahkan metode untuk edit data
+    // ... metode updateProduct tidak diubah ...
     public static function updateProduct($id, $request, $image = null)
     {
         $product = self::find($id);
@@ -82,8 +96,9 @@ class Product extends Model
                 'product_category_id' => $request['product_category_id'],
                 'supplier_id'         => $request['supplier_id'],
                 'description'         => $request['description'],
-                'price'               => $request['price'],
-                'stock'               => $request['stock']
+                'price'               => $request['price'],   
+                'cost_price'          => $request['cost_price'],
+                // Status tidak diubah
             ];
 
             if (!empty($image)) {
@@ -96,11 +111,6 @@ class Product extends Model
         } else {
             return "tidak ada data yang diupdate";
         }
-
-     
-
     }
-
-
-    
+    // ...
 }
