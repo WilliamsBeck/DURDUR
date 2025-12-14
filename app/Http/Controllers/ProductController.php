@@ -185,14 +185,45 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        if ($product->image) {
-            Storage::disk('public')->delete('images/' . $product->image);
-        }
 
         $product->delete();
 
         return redirect()->route('products.index')->with(['success' => 'Data Berhasil Dihapus!']);
     }
+
+
+        /**
+         * Memulihkan produk yang di-soft delete (Restore)
+         *
+         * @param mixed $id
+         * @return RedirectResponse
+         */
+        public function restore($id): RedirectResponse
+        {
+            // Menggunakan withTrashed() agar bisa mencari record yang sudah dihapus
+            $product = Product::withTrashed()->findOrFail($id); 
+
+            if ($product) {
+                $product->restore(); // Metode bawaan SoftDeletes untuk mengisi deleted_at = NULL
+            }
+            
+            return redirect()->route('products.index')->with(['success' => 'Produk Berhasil Dipulihkan!']);
+        }
+
+        // app/Http/Controllers/ProductController.php
+
+/**
+             * Menampilkan daftar produk yang diarsip (Soft Deleted)
+             *
+             * @return View
+             */
+            public function archived(): View
+            {
+                $products = Product::onlyTrashed()->with(['category_product', 'supplier'])->latest()->paginate(10);
+
+                return view('products.archived', compact('products'));
+            }
+    
 
     // =========================================================================
     // API METHODS

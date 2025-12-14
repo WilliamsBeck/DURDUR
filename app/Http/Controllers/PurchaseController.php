@@ -38,8 +38,8 @@ class PurchaseController extends Controller
     // ================= CREATE =================
     public function create(): View
     {
-        // Pastikan scopeActive() hanya memfilter status, bukan stok
-        $products = Product::active()->orderBy('title')->get();
+        // REVISI/PERBAIKAN: Mengganti potential Product::active() dengan withoutTrashed()
+        $products = Product::withoutTrashed()->get();
         $suppliers = Supplier::orderBy('supplier_name')->get(); 
 
         return view('purchases.create', compact('products', 'suppliers'));
@@ -133,7 +133,7 @@ class PurchaseController extends Controller
                 // 2. Update Status Purchase Header
                 $purchase->update([
                     'status' => 'done',
-                   
+                    
                     'received_at' => now(),
                 ]);
             });
@@ -195,8 +195,9 @@ class PurchaseController extends Controller
                         $product = Product::find($detail->product_id);
                         
                         if ($product) {
+                            // Cek stok sebelum dikurangi
                             if ($product->stock < $detail->quantity) {
-                                 throw new \Exception("Cannot void: Stock of '{$product->title}' is insufficient. Inventory movement has occurred.");
+                                throw new \Exception("Cannot void: Stock of '{$product->title}' is insufficient. Inventory movement has occurred.");
                             }
                             $product->decrement('stock', $detail->quantity);
                         }
@@ -212,12 +213,13 @@ class PurchaseController extends Controller
                     'void_at' => now(),
                 ]);
 
-                return $reverted; // Mengembalikan nilai untuk digunakan di luar transaction
+                return $reverted; 
             });
 
             $message = "Purchase #{$purchase->id} voided. ";
-            // Cek hasil dari DB::transaction (meskipun biasanya lebih baik dicek berdasarkan status lama $purchase)
-            $message .= ($purchase->status == 'done') ? "Stock reverted." : "No stock adjustment needed.";
+            // Cek status lama untuk pesan (lebih akurat menggunakan $purchase->wasChanged('status') atau status lama)
+            // Karena kita tidak bisa mendapatkan status lama di luar transaction tanpa refresh, kita asumsikan jika void berhasil dan status sebelumnya 'done' maka stok reverted.
+            $message .= ($purchase->status_was == 'done') ? "Stock reverted." : "No stock adjustment needed.";
             
             return redirect()
                 ->route('purchases.index')
@@ -238,9 +240,10 @@ class PurchaseController extends Controller
         }
         
         $products = Product::where('supplier_id', $supplierId)
-                         ->active() 
-                         ->orderBy('title', 'asc') 
-                         ->get(['id', 'title', 'cost_price', 'stock']); 
+                            // REVISI: Mengganti active() dengan withoutTrashed()
+                           ->withoutTrashed() 
+                           ->orderBy('title', 'asc') 
+                           ->get(['id', 'title', 'cost_price', 'stock']); 
 
         return response()->json($products);
     }
