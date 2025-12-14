@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Supplier; 
 use App\Models\Category_product;
 
 class Product extends Model
 {
-
+    use SoftDeletes;
 
     /**
      * fillable
@@ -25,8 +26,7 @@ class Product extends Model
         'price',
         'cost_price',
         'stock',
-        // Tambahkan kolom status
-        'status', 
+        
     ];
 
     /**
@@ -35,39 +35,30 @@ class Product extends Model
     public function category_product()
         {
             // Parameter ke-2 ('product_category_id') adalah nama kolom foreign key di tabel products
-            return $this->belongsTo(Category_product::class, 'product_category_id');
+            return $this->belongsTo(Category_product::class, 'product_category_id')->withTrashed();
         }
 
         // Relasi ke tabel Supplier
     public function supplier()
         {
-            return $this->belongsTo(Supplier::class, 'supplier_id');
+            return $this->belongsTo(Supplier::class, 'supplier_id')->withTrashed();
         }
 
     public function get_product()
     {
-        // get all active products (Hanya ambil yang statusnya 'active')
+        
         $sql = $this->select(
             "products.*", 
             "category_product.product_category_name as product_category_name",
             "supplier.supplier_name as supplier_name"
         )
         ->leftjoin('category_product', 'category_product.id', '=', 'products.product_category_id')
-        ->leftjoin('supplier', 'supplier.id', '=', 'products.supplier_id')
-        // Tambahkan filter status ENUM
-        ->where('products.status', 'active');
+        ->leftjoin('supplier', 'supplier.id', '=', 'products.supplier_id');
+       
 
         return $sql;
     }
-    
-    // =========================================================================
-    // Scope Lokal untuk memfilter produk aktif (status = 'active')
-    // Digunakan di Controller seperti: Product::active()->get()
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-    // =========================================================================
+   
 
 
     public static function storeProduct($request, $image)
@@ -80,7 +71,6 @@ class Product extends Model
             'description'         => $request->description,
             'price'               => $request->price,
             'cost_price'          => $request->cost_price,
-            'status'              => 'active', // Default status saat membuat
             
         ]);
     }

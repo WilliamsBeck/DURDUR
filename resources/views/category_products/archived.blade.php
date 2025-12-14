@@ -1,36 +1,41 @@
 @extends('layouts.app')
 
-@section('title', 'Category Management')
+@section('title', 'Category Archives')
 
 @section('content')
 
     <div class="main-content-card">
         <div class="table-controls">
-            <a href="{{ route('category_products.create') }}" class="btn add-btn">
-                <i class="fa-solid fa-plus"></i>
-                Add New Category
-            </a>
-
-            {{-- TOMBOL BARU: LIHAT ARSIP --}}
-            <a href="{{ route('category_products.archived') }}" class="btn btn-warning" style="margin-left: 10px; background-color: #f7b825; color: #333; border: none;">
-                <i class="fa-solid fa-archive"></i>
-                Lihat Arsip Kategori
+            <h3 class="mb-0">📦 Daftar Kategori yang Diarsip</h3>
+        </div>
+        
+        {{-- TOMBOL KEMBALI DAN SEARCH BAR (Sesuaikan design dan class Anda) --}}
+        <div class="table-controls" style="justify-content: flex-start; margin-bottom: 20px;">
+            <a href="{{ route('category_products.index') }}" class="btn btn-primary" style="background-color: #333; color: white;">
+                <i class="fa-solid fa-arrow-left"></i>
+                Kembali ke Daftar Aktif
             </a>
             
-            <div class="search-bar-new">
+            <div class="search-bar-new" style="margin-left: auto;">
                 <i class="fa-solid fa-search"></i>
-                <input type="text" id="searchInput" name="search" placeholder="Search categories..." class="form-control" value="{{ request('search') }}">
+                <input type="text" id="searchInput" name="search" placeholder="Search archived categories..." class="form-control" value="{{ request('search') }}">
                 <span class="clear-search-btn" id="clearSearchBtn" style="{{ request('search') ? 'display:block;' : 'display:none;' }}">&times;</span>
             </div>
         </div>
-        
+
+        @if(session('success'))
+        {{-- Pesan sukses ini akan ditangkap oleh SweetAlert di script bawah --}}
+        <div class="alert alert-success mt-3" style="display: none;">{{ session('success') }}</div>
+        @endif
+
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
                         <th style="width: 80px;">ID</th>
                         <th>Category Name</th>
-                        <th style="width: 150px;">Created At</th>
+                        <th style="width: 150px;">Dibuat Pada</th>
+                        <th style="width: 150px;">Dihapus Pada</th>
                         <th class="text-center" style="width: 120px;">Actions</th>
                     </tr>
                 </thead>
@@ -40,17 +45,16 @@
                             <td><strong>#{{ $category->id }}</strong></td>
                             <td>{{ $category->product_category_name }}</td>
                             <td>{{ $category->created_at ? $category->created_at->format('d F Y') : '-' }}</td>
+                            <td>{{ $category->deleted_at ? $category->deleted_at->format('d F Y H:i:s') : 'N/A' }}</td>
                             <td class="text-center">
                                 <div class="action-icons">
-                                    <a href="{{ route('category_products.edit', $category->id) }}" title="Edit Category">
-                                        <i class="fa-solid fa-pencil"></i>
-                                    </a>
-                                    {{-- PERUBAHAN: Tombol sekarang melakukan Soft Delete (Arsip) --}}
-                                    <form class="d-inline" action="{{ route('category_products.destroy', $category->id) }}" method="POST">
+                                    {{-- FORM RESTORE --}}
+                                    <form class="d-inline" action="{{ route('category_products.restore', $category->id) }}" method="POST">
                                         @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-delete" title="Archive Category" data-name="{{ $category->product_category_name }}" data-action="archive">
-                                            <i class="fa-solid fa-trash-can"></i>
+                                        @method('PUT')
+                                        {{-- Gunakan class btn-restore untuk ditangkap oleh SweetAlert --}}
+                                        <button type="submit" class="btn-restore" title="Pulihkan Kategori" data-name="{{ $category->product_category_name }}" data-action="restore" style="background: none; border: none; padding: 0;">
+                                            <i class="fa-solid fa-trash-arrow-up" style="color: #28a745;"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -58,9 +62,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">
+                            <td colspan="5" class="text-center">
                                 <div class="alert alert-secondary mt-3">
-                                    No Category Data Available.
+                                    Tidak ada data kategori yang diarsip.
                                 </div>
                             </td>
                         </tr>
@@ -69,6 +73,7 @@
             </table>
         </div>
 
+        {{-- BAGIAN PAGINATION (PENTING AGAR appends() BERFUNGSI) --}}
         <div class="d-flex justify-content-center mt-4">
             {{ $category_products->appends(request()->query())->links() }}
         </div>
@@ -77,6 +82,7 @@
 @endsection
 
 @push('scripts')
+    {{-- PASTIKAN INI TIDAK MENGINCLUDE FILE INDEX.BLADE.PHP --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // SweetAlert untuk pesan sukses
@@ -90,37 +96,22 @@
             });
         @endif
 
-        // SweetAlert untuk konfirmasi arsip
-        const deleteButtons = document.querySelectorAll('.btn-delete');
-        deleteButtons.forEach(button => {
+        // SweetAlert untuk konfirmasi restore
+        const restoreButtons = document.querySelectorAll('.btn-restore');
+        restoreButtons.forEach(button => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
                 const dataName = this.getAttribute('data-name');
-                const action = this.getAttribute('data-action');
                 const form = this.closest('form');
                 
-                let title, text, confirmText;
-
-                // Cek apakah tombol ini untuk restore (di halaman archived) atau delete (di halaman index)
-                if (action === 'restore') {
-                    title = `Pulihkan kategori "${dataName}"?`;
-                    text = "Kategori akan dikembalikan ke daftar aktif.";
-                    confirmText = 'Ya, Pulihkan!';
-                } else { // archive/soft delete
-                    title = `Arsipkan kategori "${dataName}"?`;
-                    text = "Kategori akan dipindahkan ke arsip dan dapat dipulihkan kapan saja.";
-                    confirmText = 'Ya, Arsipkan!';
-                }
-
-
                 Swal.fire({
-                    title: title,
-                    text: text,
+                    title: `Pulihkan kategori "${dataName}"?`,
+                    text: "Kategori akan dikembalikan ke daftar aktif.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: action === 'restore' ? '#28a745' : '#d33', // Warna hijau untuk restore, merah untuk arsip
+                    confirmButtonColor: '#28a745', 
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: confirmText,
+                    confirmButtonText: 'Ya, Pulihkan!',
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -130,7 +121,7 @@
             });
         });
 
-        // Script untuk Search Bar (Tetap sama)
+        // Script untuk Search Bar (Sama seperti di index.blade.php)
         const searchInput = document.getElementById('searchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
 

@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SalesTransactionController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ProductController;
+
 
 
 /*
@@ -48,13 +50,46 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+Route::get('products/archived', [ProductController::class, 'archived'])
+    ->name('products.archived')
+    ->middleware('auth'); // Sesuaikan middleware jika perlu
+
+
     // ================= PRODUCTS =================
     Route::resource('/products', \App\Http\Controllers\ProductController::class);
 
+   
+
+// ... rute resource products yang sudah ada
+
+Route::put('products/{id}/restore', [ProductController::class, 'restore'])
+    ->name('products.restore')
+    // Biasanya rute restore diletakkan di luar resource atau sebagai aksi tambahan
+    // Pastikan ini diletakkan sebelum Route::resource jika Anda menggunakannya. 
+    ->withTrashed(); // Opsi: Agar Laravel bisa menemukan produk yang di-soft delete
+
+
+
+
+
     // ================= SUPPLIERS =================
+Route::get('suppliers/archived', [\App\Http\Controllers\SupplierController::class, 'archived'])
+    ->name('suppliers.archived');
+
+Route::put('suppliers/{id}/restore', [\App\Http\Controllers\SupplierController::class, 'restore'])
+    ->name('suppliers.restore')
+    ->withTrashed();
+
     Route::resource('/suppliers', \App\Http\Controllers\SupplierController::class);
 
     // ================= PRODUCT CATEGORIES =================
+    Route::get('category_products/archived', [\App\Http\Controllers\CategoryProductController::class, 'archived'])
+        ->name('category_products.archived'); // <-- INI YANG HILANG!
+
+    Route::put('category_products/{id}/restore', [\App\Http\Controllers\CategoryProductController::class, 'restore'])
+        ->name('category_products.restore')
+        ->withTrashed();
+
     Route::resource('/category_products', \App\Http\Controllers\CategoryProductController::class);
 
     // ================= SALES TRANSACTIONS =================
