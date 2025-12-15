@@ -3,120 +3,103 @@
 @section('title', 'Sales Transactions')
 
 @section('content')
-<div class="container">
+{{-- Load CSS Custom Baru --}}
+<link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    {{-- FLASH MESSAGE SUCCESS --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="container-fluid">
+    {{-- Card Putih Besar --}}
+    <div class="main-content-card">
+
+        {{-- 1. TITLE --}}
+        <h3>Sales Transaction</h3>
+
+        {{-- 2. CONTROLS --}}
+        <div class="table-controls">
+            {{-- Tombol Add Hitam --}}
+            <a href="{{ route('transactions.create') }}" class="add-btn">
+                <i class="bi bi-plus-lg"></i> Add Transaction
+            </a>
+
+            {{-- Search Bar Abu-abu Pill --}}
+            <form method="GET" action="{{ route('transactions.index') }}" class="m-0">
+                <div class="search-bar-new">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search Transaction Date">
+                </div>
+            </form>
         </div>
-    @endif
 
-    {{-- FLASH MESSAGE ERROR --}}
-    @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ $errors->first() }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
-            <h5 class="mb-0">Sales Transactions</h5>
-            
-            <div class="d-flex align-items-center">
-                {{-- Form Pencarian --}}
-                <form method="GET" class="me-3">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="search" value="{{ request('search') }}"
-                               class="form-control"
-                               placeholder="Search ID, Cashier, or Email...">
-                        <button class="btn btn-outline-secondary" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </form>
-
-                {{-- Tombol Tambah Transaksi --}}
-                <a href="{{ route('transactions.create') }}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus-circle"></i> Add Transaction
-                </a>
+        @if(session('success'))
+            <div class="alert alert-success border-0 bg-success-subtle rounded-3 mb-4">
+                <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
             </div>
-        </div>
+        @endif
 
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Cashier</th>
-                            <th scope="col">Payment</th>
-                            <th scope="col">Grand Total</th>
-                            <th scope="col">Status</th>
-                            <th scope="col" width="120">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @forelse ($transactions as $trx)
-                        <tr>
-                            <td>#{{ $trx->id }}</td>
-                            <td>{{ $trx->transaction_date->format('d F, Y') }}</td>
-                            <td>{{ $trx->cashier->name ?? '-' }}</td>
-                            <td>{{ $trx->payment->method_name ?? '-' }}</td>
-                            <td>Rp. {{ number_format($trx->grand_total, 0, ',', '.') }}</td>
-                            <td>
-                                @php
-                                    $badgeClass = '';
-                                    switch ($trx->status) {
-                                        case 'done':
-                                            $badgeClass = 'bg-success';
-                                            break;
-                                        case 'pending':
-                                            $badgeClass = 'bg-warning text-dark';
-                                            break;
-                                        case 'void':
-                                            $badgeClass = 'bg-danger';
-                                            break;
-                                        default:
-                                            $badgeClass = 'bg-secondary';
-                                    }
-                                @endphp
-                                <span class="badge {{ $badgeClass }}">
-                                    {{ ucfirst($trx->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                {{-- DETAIL --}}
-                                <a href="{{ route('transactions.show', $trx->id) }}"
-                                   class="btn btn-sm btn-info" title="Detail">
-                                   Detail
+        {{-- 3. TABLE --}}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center" width="8%">ID</th>
+                        <th width="20%">Date</th>
+                        <th width="25%">Customer Email</th>
+                        <th width="20%">Grand Total</th>
+                        <th class="text-center" width="10%">Status</th>
+                        <th class="text-center" width="15%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse ($transactions as $trx)
+                    <tr>
+                        <td class="text-center text-muted">#{{ $trx->id }}</td>
+                        <td>{{ $trx->transaction_date->format('d, F Y') }}</td>
+                        <td>{{ $trx->customer_email ?? '-' }}</td>
+                        
+                        {{-- Class fw-bold-dark untuk menebalkan harga --}}
+                        <td class="fw-bold-dark">
+                            Rp. {{ number_format($trx->grand_total, 2, ',', '.') }}
+                        </td>
+
+                        <td>
+                            @if($trx->status == 'void')
+                                <div class="status-icon-void"><i class="bi bi-x-circle"></i></div>
+                            @else
+                                {{-- Default Lime Check --}}
+                                <div class="status-icon-check"><i class="bi bi-check-circle"></i></div>
+                            @endif
+                        </td>
+
+                        <td>
+                            <div class="action-icons">
+                                {{-- Tombol Void Merah --}}
+                                <form action="{{ route('transactions.void', $trx->id) }}" method="POST" onsubmit="return confirm('Void?');">
+                                    @csrf
+                                    <button type="submit" class="btn-circle btn-red-solid" title="Void">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+
+                                {{-- Tombol Detail Ungu --}}
+                                <a href="{{ route('transactions.show', $trx->id) }}" class="btn-circle btn-purple-solid" title="View">
+                                    <i class="bi bi-eye-fill"></i>
                                 </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-4">
-                                <p class="lead text-muted">No sales transactions found.</p>
-                                <a href="{{ route('transactions.create') }}" class="btn btn-sm btn-success">Start New Transaction</a>
-                            </td>
-                        </tr>
-                    @endforelse
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">No Data Available</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
         </div>
 
-        <div class="card-footer">
+        {{-- Pagination --}}
+        <div class="d-flex justify-content-end mt-4">
             {{ $transactions->withQueryString()->links() }}
         </div>
     </div>
 </div>
 @endsection
-
-@push('styles')
-    {{-- Memastikan ikon tersedia (Bootstrap Icons) --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-@endpush

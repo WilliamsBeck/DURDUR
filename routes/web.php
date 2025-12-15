@@ -6,7 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SalesTransactionController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ProductController;
-
+use App\Http\Controllers\StockAdjustmentController;
+use App\Http\Controllers\ReportController;
 
 
 /*
@@ -46,17 +47,25 @@ Route::get('/send-email/{id}', [SalesTransactionController::class, 'sendEmail'])
 */
 Route::middleware(['auth'])->group(function () {
 
+Route::get('/reports', [ReportController::class, 'index'])->name('reports.sales');
+Route::get('/reports/purchasement', [ReportController::class, 'purchasement'])->name('reports.purchasement');
+Route::get('/reports/product-sales', [ReportController::class, 'productSales'])->name('reports.product_sales');
+Route::get('/reports/remaining-stock', [ReportController::class, 'remainingStock'])->name('reports.remaining_stock');
+
     // ================= DASHBOARD =================
-    Route::get('/dashboard', [DashboardController::class, 'index'])
+Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
 Route::get('products/archived', [ProductController::class, 'archived'])
     ->name('products.archived')
     ->middleware('auth'); // Sesuaikan middleware jika perlu
 
+// Route Stock Adjustment
+Route::resource('stock-adjustments', StockAdjustmentController::class)->only(['index', 'create', 'store', 'show']);
 
-    // ================= PRODUCTS =================
-    Route::resource('/products', \App\Http\Controllers\ProductController::class);
+
+// ================= PRODUCTS =================
+Route::resource('/products', \App\Http\Controllers\ProductController::class);
 
    
 
@@ -137,4 +146,7 @@ Route::put('purchases/{purchase}/status', [PurchaseController::class, 'updateSta
     // Route untuk memproses void (menggunakan POST)
     Route::post('purchases/{purchase}/void', [PurchaseController::class, 'void'])
          ->name('purchases.void');
+
+
+
 });
