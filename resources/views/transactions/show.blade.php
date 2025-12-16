@@ -1,103 +1,167 @@
 @extends('layouts.app')
 
+@section('title', 'Transaction Detail')
+
 @section('content')
-<div class="container">
+{{-- Load CSS External --}}
+<link rel="stylesheet" href="{{ asset('css/transaction-form.css') }}">
 
-    {{-- FLASH MESSAGE --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
 
-    @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ $errors->first() }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
-            <h5>Transaction Detail #{{ $transaction->id }}</h5>
-            
-            <div>
-                <a href="{{ route('transactions.index') }}" class="btn btn-sm btn-secondary me-2">
-                    <i class="bi bi-arrow-left"></i> Back to List
-                </a>
-
-                {{-- TOMBOL VOID (Hanya muncul jika status 'done') --}}
-                @if($transaction->status === 'done')
-                    <a href="{{ route('transactions.void.form', $transaction->id) }}"
-                       class="btn btn-sm btn-danger">
-                        <i class="bi bi-x-circle"></i> Void Transaction
-                    </a>
-                @endif
-
-                {{-- Tampilkan status void jika sudah dibatalkan --}}
-                @if($transaction->status === 'void')
-                    <button class="btn btn-sm btn-danger disabled">
-                        <i class="bi bi-slash-circle"></i> Transaction Voided
-                    </button>
-                @endif
-            </div>
-        </div>
-
-        <div class="card-body">
-            <h6 class="border-bottom pb-2 mb-3">General Information</h6>
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <p class="mb-1"><strong>Invoice ID:</strong> INV-TXN-{{ $transaction->id }}</p>
-                    <p class="mb-1"><strong>Date:</strong> {{ $transaction->transaction_date->format('d F Y H:i') }}</p>
-                    <p class="mb-1"><strong>Cashier:</strong> {{ $transaction->cashier->name ?? '-' }}</p>
-                    <p class="mb-1"><strong>Payment Method:</strong> {{ $transaction->payment->method_name ?? '-' }}</p>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1"><strong>Customer Email:</strong> {{ $transaction->customer_email ?? '-' }}</p>
-                    <p class="mb-1"><strong>Grand Total:</strong> <span class="fw-bold text-success">Rp. {{ number_format($transaction->grand_total, 0, ',', '.') }}</span></p>
-                    <p class="mb-1"><strong>Status:</strong>
-                        @php
-                            $badgeClass = $transaction->status === 'done' ? 'bg-success' : ($transaction->status === 'void' ? 'bg-danger' : 'bg-warning text-dark');
-                        @endphp
-                        <span class="badge {{ $badgeClass }}">
-                            {{ ucfirst($transaction->status) }}
-                        </span>
-                    </p>
-                </div>
-            </div>
-            
-            @if($transaction->status === 'void')
-                <h6 class="border-bottom pb-2 mb-3 text-danger">Void Information</h6>
-                <div class="alert alert-light border p-3">
-                    <p class="mb-1"><strong>Void By:</strong> {{ $transaction->voidBy->name ?? 'N/A' }}</p>
-                    <p class="mb-1"><strong>Void At:</strong> {{ $transaction->void_at->format('d F Y H:i') }}</p>
-                    <p class="mb-0"><strong>Reason:</strong> {{ $transaction->void_reason ?? 'No Reason Provided' }}</p>
+            {{-- Flash Message --}}
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-radius: 12px;">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
+            {{-- Container Utama --}}
+            <div class="form-card">
 
-            <h6 class="border-bottom pb-2 mb-3 mt-4">Product Details</h6>
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Qty</th>
-                        <th>Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($transaction->details as $detail)
-                        <tr>
-                            <td>{{ $detail->product->title ?? 'N/A' }}</td>
-                            <td>Rp. {{ number_format($detail->price, 0, ',', '.') }}</td>
-                            <td>{{ $detail->quantity }}</td>
-                            <td>Rp. {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                {{-- Header Detail (Nomor Invoice & Status) --}}
+                <div class="detail-header-info align-items-center">
+                    <div>
+                        <h3>Transaction Detail</h3>
+                        <div class="invoice-number">INV-TXN-{{ $transaction->id }}</div>
+                    </div>
+                    
+                    {{-- Status Badge --}}
+                    <div>
+                        <span class="badge rounded-pill px-3 py-2 
+                            {{ $transaction->status === 'done' ? 'bg-success' : ($transaction->status === 'void' ? 'bg-danger' : 'bg-warning text-dark') }}"
+                            style="font-size: 0.9rem;">
+                            {{ ucfirst($transaction->status) }}
+                        </span>
+                    </div>
+                </div>
+
+                {{-- BAGIAN 1: INFORMASI UMUM (Text Only) --}}
+                <div class="row g-4 mb-5">
+                    {{-- Transaction Date --}}
+                    <div class="col-md-6">
+                        <div class="form-label mb-1">Transaction Time</div>
+                        <div class="fw-bold text-dark">
+                            {{ $transaction->transaction_date->format('d F Y - H:i:s') }}
+                        </div>
+                    </div>
+
+                    {{-- Cashier --}}
+                    <div class="col-md-6">
+                        <div class="form-label mb-1">Cashier</div>
+                        <div class="fw-bold text-dark">
+                            {{ $transaction->cashier->name ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- Customer Email --}}
+                    <div class="col-md-6">
+                        <div class="form-label mb-1">Customer Email</div>
+                        <div class="fw-bold text-dark">
+                            {{ $transaction->customer_email ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- Payment Method --}}
+                    <div class="col-md-6">
+                        <div class="form-label mb-1">Payment Method</div>
+                        <div class="fw-bold text-dark">
+                            {{ $transaction->payment->method_name ?? '-' }}
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Informasi Void (Jika ada - Text Only) --}}
+                @if($transaction->status === 'void')
+                    <div class="product-section-title text-danger">Void Information</div>
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <div class="form-label text-danger mb-1">Void By</div>
+                            <div class="fw-bold text-dark">
+                                {{ $transaction->voidBy->name ?? '-' }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-label text-danger mb-1">Void Date</div>
+                            <div class="fw-bold text-dark">
+                                {{ $transaction->void_at ? $transaction->void_at->format('d F Y - H:i') : '-' }}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-label text-danger mb-1">Reason</div>
+                            <div class="fw-bold text-dark">
+                                {{ $transaction->void_reason }}
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- BAGIAN 2: ITEM PRODUK --}}
+                <div class="product-section-title">Items Purchased</div>
+
+                {{-- Header Grid --}}
+                <div id="product-rows-header">
+                    <div>Product Name</div>         {{-- 4fr --}}
+                    <div>Unit Price</div>           {{-- 2fr --}}
+                    <div>Quantity</div>             {{-- 2fr --}}
+                    <div>Subtotal</div>             {{-- 2fr --}}
+                    <div></div>                     {{-- 0.5fr --}}
+                </div>
+
+                {{-- Item Rows --}}
+                @foreach($transaction->details as $detail)
+                    <div class="product-row">
+                        {{-- Product Name --}}
+                        <div class="fw-bold text-dark">
+                            {{ $detail->product->title ?? 'Product Deleted' }}
+                        </div>
+
+                        {{-- Unit Price --}}
+                        <div class="unit-price-text">
+                            Rp. {{ number_format($detail->price, 0, ',', '.') }}
+                        </div>
+
+                        {{-- Quantity (Tetap pakai input readonly kecil agar rapi di tengah) --}}
+                        <div>
+                            <input type="text" class="form-control text-center bg-white border-0 fw-bold" value="{{ $detail->quantity }}" readonly style="width: 60px; padding: 0.4rem;">
+                        </div>
+
+                        {{-- Subtotal --}}
+                        <div class="subtotal-text">
+                            Rp. {{ number_format($detail->subtotal, 0, ',', '.') }}
+                        </div>
+
+                        {{-- Kosong --}}
+                        <div></div>
+                    </div>
+                @endforeach
+
+                {{-- Grand Total --}}
+                <div class="detail-grand-total">
+                    <span>Grand Total</span>
+                    <span>Rp. {{ number_format($transaction->grand_total, 0, ',', '.') }}</span>
+                </div>
+
+                {{-- BAGIAN 3: TOMBOL AKSI --}}
+                <div class="form-actions mt-5">
+                    {{-- Tombol Back --}}
+                    <a href="{{ route('transactions.index') }}" class="btn-cancel text-decoration-none">
+                        Back to List
+                    </a>
+
+                    {{-- Tombol Void (Hanya jika status done) --}}
+                    @if($transaction->status === 'done')
+                        <a href="{{ route('transactions.void.form', $transaction->id) }}" 
+                           class="btn-save text-decoration-none text-white" 
+                           style="background-color: #dc3545; color: white;">
+                            Void Transaction
+                        </a>
+                    @endif
+                </div>
+
+            </div>
         </div>
     </div>
 </div>

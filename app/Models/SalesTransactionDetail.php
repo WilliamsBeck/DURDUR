@@ -23,4 +23,10 @@ class SalesTransactionDetail extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+
+    public function transaction()
+    {
+        return $this->belongsTo(SalesTransaction::class, 'sales_transaction_id');
+    }
+
 }

@@ -19,7 +19,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Product::with(['category_product', 'supplier']);
+       $query = Product::withTrashed()->with(['category_product', 'supplier']);
 
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
@@ -67,7 +67,8 @@ class ProductController extends Controller
             'product_category_id' => 'required|exists:category_product,id',
             'description'         => 'required|min:10',
             'price'               => 'required|numeric',
-            'stock'               => 'required|numeric'
+            'cost_price'          => 'required|numeric',
+            
         ]);
 
         try {
@@ -84,7 +85,8 @@ class ProductController extends Controller
                 'supplier_id'         => $request->supplier_id,
                 'description'         => $request->description,
                 'price'               => $request->price,
-                'stock'               => $request->stock
+                'cost_price'          => $request->cost_price,
+                
             ]);
 
             return redirect()->route('products.index')->with(['success' => 'Data Berhasil Disimpan!']);
@@ -138,7 +140,8 @@ class ProductController extends Controller
             'supplier_id'         => 'required|numeric',
             'description'         => 'required|min:10',
             'price'               => 'required|numeric',
-            'stock'               => 'required|numeric'
+            'cost_price'          => 'required|numeric',
+            
         ]);
 
         $product = Product::findOrFail($id);
@@ -149,7 +152,8 @@ class ProductController extends Controller
             'supplier_id'         => $request->supplier_id,
             'description'         => $request->description,
             'price'               => $request->price,
-            'stock'               => $request->stock
+            'cost_price'          => $request->cost_price,
+            
         ];
 
         if ($request->hasFile('image')) {
@@ -181,14 +185,45 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        if ($product->image) {
-            Storage::disk('public')->delete('images/' . $product->image);
-        }
 
         $product->delete();
 
         return redirect()->route('products.index')->with(['success' => 'Data Berhasil Dihapus!']);
     }
+
+
+        /**
+         * Memulihkan produk yang di-soft delete (Restore)
+         *
+         * @param mixed $id
+         * @return RedirectResponse
+         */
+        public function restore($id): RedirectResponse
+        {
+            // Menggunakan withTrashed() agar bisa mencari record yang sudah dihapus
+            $product = Product::withTrashed()->findOrFail($id); 
+
+            if ($product) {
+                $product->restore(); // Metode bawaan SoftDeletes untuk mengisi deleted_at = NULL
+            }
+            
+            return redirect()->route('products.index')->with(['success' => 'Produk Berhasil Dipulihkan!']);
+        }
+
+        // app/Http/Controllers/ProductController.php
+
+/**
+             * Menampilkan daftar produk yang diarsip (Soft Deleted)
+             *
+             * @return View
+             */
+            public function archived(): View
+            {
+                $products = Product::onlyTrashed()->with(['category_product', 'supplier'])->latest()->paginate(10);
+
+                return view('products.archived', compact('products'));
+            }
+    
 
     // =========================================================================
     // API METHODS

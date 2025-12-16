@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Supplier; 
 use App\Models\Category_product;
 
 class Product extends Model
 {
-
+    use SoftDeletes;
 
     /**
      * fillable
@@ -23,28 +24,29 @@ class Product extends Model
         'supplier_id',
         'description',
         'price',
+        'cost_price',
         'stock',
         
     ];
 
-       /**
+    /**
      * Relasi ke Supplier. 
      */
     public function category_product()
         {
             // Parameter ke-2 ('product_category_id') adalah nama kolom foreign key di tabel products
-            return $this->belongsTo(Category_product::class, 'product_category_id');
+            return $this->belongsTo(Category_product::class, 'product_category_id')->withTrashed();
         }
 
         // Relasi ke tabel Supplier
     public function supplier()
         {
-            return $this->belongsTo(Supplier::class, 'supplier_id');
+            return $this->belongsTo(Supplier::class, 'supplier_id')->withTrashed();
         }
 
     public function get_product()
     {
-        // get all products
+        
         $sql = $this->select(
             "products.*", 
             "category_product.product_category_name as product_category_name",
@@ -52,10 +54,13 @@ class Product extends Model
         )
         ->leftjoin('category_product', 'category_product.id', '=', 'products.product_category_id')
         ->leftjoin('supplier', 'supplier.id', '=', 'products.supplier_id');
+       
 
         return $sql;
     }
-    
+   
+
+
     public static function storeProduct($request, $image)
     {
         return self::create([
@@ -65,13 +70,12 @@ class Product extends Model
             'supplier_id'         => $request->supplier_id,
             'description'         => $request->description,
             'price'               => $request->price,
-            'stock'               => $request->stock,
+            'cost_price'          => $request->cost_price,
+            
         ]);
     }
 
-
-
-    // Tambahkan metode untuk edit data
+    // ... metode updateProduct tidak diubah ...
     public static function updateProduct($id, $request, $image = null)
     {
         $product = self::find($id);
@@ -82,8 +86,9 @@ class Product extends Model
                 'product_category_id' => $request['product_category_id'],
                 'supplier_id'         => $request['supplier_id'],
                 'description'         => $request['description'],
-                'price'               => $request['price'],
-                'stock'               => $request['stock']
+                'price'               => $request['price'],   
+                'cost_price'          => $request['cost_price'],
+                // Status tidak diubah
             ];
 
             if (!empty($image)) {
@@ -96,11 +101,6 @@ class Product extends Model
         } else {
             return "tidak ada data yang diupdate";
         }
-
-     
-
     }
-
-
-    
+    // ...
 }

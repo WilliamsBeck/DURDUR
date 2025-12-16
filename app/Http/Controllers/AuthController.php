@@ -70,14 +70,3 @@ class AuthController extends Controller
     }
         
     }
-
-
-
-
-
-
-
-
-
-
-

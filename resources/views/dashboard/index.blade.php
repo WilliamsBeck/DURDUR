@@ -1,135 +1,169 @@
 @extends('layouts.app')
 
-@section('title', 'Sales Dashboard')
+@section('title', 'Dashboard')
 
 @section('content')
 
-
-
-{{-- BARIS 1: CARD PENDAPATAN, CARD PRODUK TERJUAL, & TOMBOL TRANSAKSI BARU --}}
-<div class="row mb-4 align-items-center">
-    <div class="card-dash col-lg-4 col-md-6">
-        <div class="today-rev card shadow-sm border-0 h-100 border-start border-5">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <i class="fas fa-sack-dollar fa-2x"></i>
-                    </div>
-                    <div class="col">
-                        <div class="today-list">
-                            Today's Revenue
-                        </div>
-                        <div class="today-data">
-                            Rp {{ number_format($pendapatanHariIni ?? 0, 0, ',', '.') }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<style>
+    /* --- DASHBOARD SPECIFIC STYLES --- */
+    /* Warna Kartu Atas */
+    .card-purple { background-color: #a69dee; color: #000; border: none; }
+    .card-lime { background-color: #d2f865; color: #000; border: none; }
+    .card-grey { background-color: #e5e5e5; color: #000; border: none; }
     
-    {{-- CARD TOTAL PRODUK TERJUAL HARI INI --}}
-    <div class="card-dash col-lg-4 col-md-6">
-        <div class="today-sold card shadow-sm border-0 h-100 border-start border-5">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <i class="fas fa-box-open fa-2x"></i>
-                    </div>
-                    <div class="col">
-                        <div class="today-list">
-                            Total Products Sold Today
-                        </div>
-                        <div class="today-data">
-                            {{ number_format($totalProdukTerjualHariIni ?? 0, 0, ',', '.') }} pcs
-                        </div>
-                    </div>
+    /* Styling Angka Urutan di Top Product (Lingkaran Hitam) */
+    .rank-circle {
+        width: 28px; height: 28px;
+        background-color: #000; color: #fff;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold; font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    /* Badge Quantity (Warna Lime) */
+    .qty-badge {
+        background-color: #d2f865; color: #000;
+        font-weight: 600; padding: 5px 12px;
+        border-radius: 12px; font-size: 0.85rem;
+    }
+
+    /* Tombol Purchase Ungu di Tabel */
+    .btn-purchase-purple {
+        background-color: #a69dee; color: #fff;
+        border-radius: 50px; font-weight: 500;
+        padding: 5px 20px; text-decoration: none;
+        display: inline-block; border: none;
+    }
+    .btn-purchase-purple:hover { background-color: #928bd8; color: #fff; }
+
+    /* Header Tabel Merah */
+    .bg-header-red { background-color: #dc3545; color: white; }
+    
+    /* Rounded Card */
+    .rounded-40 { border-radius: 25px; } /* Radius besar untuk kartu warna */
+    .rounded-20 { border-radius: 15px; } /* Radius standar */
+</style>
+
+{{-- BARIS 1: 3 KARTU WARNA & TOMBOL CREATE SALES --}}
+<div class="row mb-5 align-items-center">
+    
+    {{-- Card 1: Today's Revenue (Ungu) --}}
+    <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+        <div class="card card-purple h-100 rounded-40 shadow-sm p-2">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+                <div class="small fw-bold mb-1">Today's Revenue</div>
+                <div class="h4 fw-bold mb-0">
+                    Rp. {{ number_format($pendapatanHariIni ?? 0, 0, ',', '.') }}
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-12 text-end mt-4 mt-lg-0">
-        <a href="{{ route('transactions.create') }}" class="btn btn-lg btn-custom shadow-sm w-100">
-            <i class="fas fa-plus-circle me-2"></i> Create New Transaction
+    {{-- Card 2: Total Transaction (Lime) --}}
+    <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+        <div class="card card-lime h-100 rounded-40 shadow-sm p-2">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+                <div class="small fw-bold mb-1">Total Transaction</div>
+                <div class="h4 fw-bold mb-0">
+                    {{ $totalTransaksiHariIni ?? 0 }} pcs
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Card 3: Product Sold (Abu-abu) --}}
+    <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+        <div class="card card-grey h-100 rounded-40 shadow-sm p-2">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+                <div class="small fw-bold mb-1">Product Sold</div>
+                <div class="h4 fw-bold mb-0">
+                    {{ $totalProdukTerjualHariIni ?? 0 }} pcs
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Tombol: Create Sales (Hitam Pill) --}}
+    <div class="col-lg-3 col-md-6 text-end">
+        <a href="{{ route('transactions.create') }}" class="add-btn w-100 justify-content-center py-3 shadow-sm" style="font-size: 1.1rem;">
+            <i class="fas fa-plus me-2"></i> Create Sales
         </a>
     </div>
 
 </div>
+
+
+{{-- BARIS 2: CHART & TOP PRODUCTS --}}
+<div class="row mb-4">
     
-
-
-{{-- BARIS 2: GRAFIK & PRODUK TERLARIS --}}
-<div class="row">
-    {{-- GRAFIK PENJUALAN --}}
+    {{-- CHART (Kiri) --}}
     <div class="col-lg-8 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header py-3 bg-white border-bottom">
-                <h5 class="m-0 font-weight-bold text-dark" style="font-weight: 500">
-                    Sales Revenue Chart for the Last 7 Days
-                </h5>
-            </div>
-            <div class="card-body p-2"> 
-                <div style="position: relative; height: 350px; width: 100%;">
+        <div class="card border-0 bg-white rounded-20 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4" style="font-size: 1rem;">Sales Revenue Chart for the Last 7 Days</h5>
+                <div style="position: relative; height: 300px; width: 100%;">
                     <canvas id="penjualanChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- PRODUK TERLARIS --}}
+    {{-- TOP PRODUCTS LIST (Kanan) --}}
     <div class="col-lg-4 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header py-3 bg-white border-bottom">
-                <h5 class="m-0 font-weight-bold text-dark" style="font-weight: 500;">
-                    Top 3 Best-Selling Products Today
-                </h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
+        <div class="card border-0 bg-white rounded-20 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4" style="font-size: 1rem;">Top 5 Best-Selling Product today</h5>
+                
+                <div class="d-flex flex-column gap-3">
                     @forelse($produkTertinggi as $item)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="badge bg-dark me-2">{{ $loop->iteration }}</span>
-                                <strong class="d-block">{{ $item->product->title ?? 'Product Deleted' }}</strong>
-                                <small class="text-muted">
-                                    Revenue : Rp {{ number_format($item->total_omzet, 0, ',', '.') }}
-                                </small>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                {{-- Angka Urutan Hitam --}}
+                                <div class="rank-circle">{{ $loop->iteration }}</div>
+                                <div>
+                                    <div class="fw-bold" style="font-size: 0.9rem;">{{ $item->product->title ?? 'Deleted' }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        Revenue : Rp. {{ number_format($item->total_omzet, 0, ',', '.') }}
+                                    </div>
+                                </div>
                             </div>
-                            <span class="top-pcs">
+                            {{-- Badge Quantity Lime --}}
+                            <div class="qty-badge">
                                 {{ $item->total_quantity }} pcs
-                            </span>
-                        </li>
+                            </div>
+                        </div>
                     @empty
-                        <li class="list-group-item text-center text-muted">
-                            No sales have been made today.
-                        </li>
+                        <div class="text-center text-muted py-5 small">No sales today</div>
                     @endforelse
-                </ul>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
 
-{{-- BARIS 3: PRODUK STOK RENDAH --}}
+
+{{-- BARIS 3: LOW STOCK PRODUCTS (Header Merah) --}}
 <div class="row">
-    <div class="col-lg-12 mb-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-header py-3 bg-danger text-white border-bottom">
-                <h6 class="m-0 font-weight-bold">
-                    ⚠️ Low Stock Products (Need Restocking !)
-                </h6>
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-20 overflow-hidden">
+            {{-- Header Merah --}}
+            <div class="card-header bg-header-red py-3 px-4 border-0 d-flex align-items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h6 class="m-0 fw-bold">Low stock products (Need Restocking !)</h6>
             </div>
-            <div class="card-body">
+            
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover mb-0 text-center">
-                        <thead>
+                    <table class="table table-hover mb-0 align-middle text-center">
+                        <thead class="bg-light">
                             <tr>
-                                <th>No</th>
-                                <th>Product</th>
-                                <th>Remaining Stock</th>
-                                <th>Supplier</th>
-                                <th>Action</th>
+                                <th class="py-3 px-4 text-start" width="5%">No.</th>
+                                <th class="py-3" width="35%">Product</th>
+                                <th class="py-3" width="20%">Remaining Stock</th>
+                                <th class="py-3" width="20%">Supplier</th>
+                                <th class="py-3 px-4" width="20%">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -141,15 +175,15 @@
                                     <td class="fw-bold">{{ $produk->supplier->supplier_name ?? '-' }}</td>
                                     <td class="px-4">
                                         {{-- Tombol Purchase Ungu --}}
-                                        <a href="{{ route('products.edit', $produk->id) }}" class="btn-purchase-purple">
+                                        <a href="{{ route('purchases.create') }}" class="btn-purchase-purple">
                                             Purchase
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">
-                                        All products have sufficient stock.
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        All stocks are safe.
                                     </td>
                                 </tr>
                             @endforelse
@@ -160,81 +194,78 @@
         </div>
     </div>
 </div>
+
 @endsection
 
-{{-- ===========================
-    SCRIPT UNTUK CHART.JS
-=========================== --}}
+{{-- SCRIPT CHART JS (Disesuaikan agar mirip gambar: Area Chart Hijau Lime) --}}
 @push('scripts')
 <script>
     const labels = @json($tanggal7Hari ?? []);
     const dataPenjualan = @json($penjualan7Hari ?? []);
     const ctx = document.getElementById('penjualanChart').getContext('2d');
 
+    // Membuat Gradient untuk fill chart
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(210, 248, 101, 0.8)'); // Lime atas
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.1)'); // Putih bawah
+
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Omzet Penjualan (Rp)',
+                label: 'Sales Revenue',
                 data: dataPenjualan,
-                backgroundColor: 'rgba(220, 237, 99, 0.3)',
-                borderColor: 'rgba(0, 0, 0, 1)',
+                backgroundColor: gradient, // Pakai Gradient
+                borderColor: '#000000',    // Garis Hitam
                 borderWidth: 2.5,
-                tension: 0.4,
+                tension: 0.4,              // Garis melengkung halus
                 fill: true,
                 pointRadius: 4,
-                pointBackgroundColor: 'rgba(166,157,238,2)'
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#000',
+                pointBorderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            
-            
-            animation: { duration: 0 },
-
-          
-            layout: {
-                padding: 0 
-            },
-
-            transitions: {
-                show: { animations: { x: { duration: 0 }, y: { duration: 0 } } },
-                hide: { animations: { x: { duration: 0 }, y: { duration: 0 } } }
-            },
-
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: false }, 
-                    ticks: {
-                        callback: function(value) {
-                            if (value >= 1000000) return 'Rp ' + (value / 1000000).toFixed(1) + ' Jt';
-                            if (value >= 1000) return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
-                            return 'Rp ' + value;
-                        }
-                    }
-                },
-                x: {
-                    title: { display: false } 
-                }
-            },
             plugins: {
-                legend: { display: false },
+                legend: { display: false }, // Sembunyikan legenda
                 tooltip: {
+                    backgroundColor: '#000',
+                    titleColor: '#d2f865',
+                    padding: 10,
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
                             if (context.parsed.y !== null) {
-                                label += ': ' + new Intl.NumberFormat('id-ID', {
-                                    style: 'currency',
-                                    currency: 'IDR'
-                                }).format(context.parsed.y);
+                                label = ' Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
                             }
                             return label;
                         }
                     }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [5, 5],
+                        color: '#f0f0f0'
+                    },
+                    ticks: {
+                        font: { size: 10 },
+                        callback: function(value) {
+                            if (value >= 1000000) return (value / 1000000).toFixed(0) + 'jt';
+                            if (value >= 1000) return (value / 1000).toFixed(0) + 'rb';
+                            return value;
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
                 }
             }
         }

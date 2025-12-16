@@ -1,134 +1,11 @@
-/* public/css/transaction.css */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
+/* --- 1. GENERAL & LAYOUT --- */
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #ebebeb;
+    background-color: #f3f4f6; /* Abu-abu muda agar kartu putih menonjol */
     margin: 0;
     padding: 0;
-}
-
-
-.sidebar {
-    
-    width: 350px;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: black;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    padding-top: 1rem;
-    border-radius: 0 40px 40px 0;
-}
-
-.sidebar .brand {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    padding-bottom: 1rem;
-}
-
-.sidebar .nav-link {
-    display: block;
-    margin: 10px; 
-    padding: 10px 20px;  
-    color: #fff;
-    text-decoration: none;
-    transition: background 0.3s;
-}
-
-.sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar .nav-link.active {
-    background-color: #DCED63;
-    color: black;
-    border-radius: 10px;
-    margin: 30px;
-    padding: 20px;
-    display: flex;
-    
-    align-items: center;
-
-}
-
-.card-dash {
-    height: 150px;
-}
-
-.today-rev{
-    background-color: #A69DEE;
-    border-radius: 40px;
-   
-}
-
-.today-list {
-    color: black;
-    font-size: 14pt;
-    font-weight: normal;
-    font-family: sans-serif;
-    padding-top: 10px;
-}
-
-.today-data {
-    font-size: 25pt;
-    font-weight: 500;
-    padding-top: 2px;
-}
-
-.today-sold {
-    background-color: #DCED63;
-    border-radius: 40px;
-}
-
-
-.col-auto {
-    margin-right: 10px;
-}
-
-
-.btn-custom {
-    height: 80px;
-    background-color: #000000;
-    color: white;
-    display: flex;              
-    justify-content: center;    
-    align-items: center;        
-    border: none;
-    border-radius: 50px;   
-    margin-left: 60px;  
-    height: 80px;
-}
-
-
-.btn-custom:hover {
-    background-color: #A69DEE;
-
-}
-
-.top-pcs {
-    background-color: #DCED63;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-
-.btn-purchase {
-    padding: 10px;
-    background-color: #A69DEE; 
-    font-weight:500;
-}
-
-.btn-purchase:hover {
-    
-    background-color: black; 
-    font-weight:500;
 }
 
 .container-fluid {
@@ -136,43 +13,200 @@ body {
     padding-right: 1.5rem;
 }
 
-
-.main-content-card {
-    background-color: #fff;
-    padding: 1.5rem;
-    border-radius: 16px; 
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
-    border: none;
+/* --- SIDEBAR STYLE (MATCHING FIGMA) --- */
+.sidebar {
+    width: 300px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* 1. Background Hitam Pekat */
+    background-color: #000000; 
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    z-index: 1000;
+    
+    /* 2. Lengkungan Besar di Sisi Kanan (Atas & Bawah) */
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    
+    /* 3. Shadow Halus (Opsional, agar tidak terlihat flat) */
+    box-shadow: 10px 0 20px rgba(0,0,0,0.1);
 }
 
-.top-header {
+/* --- LOGO AREA --- */
+.sidebar .brand {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    /* 4. Garis Putih Tipis di Bawah Logo */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.sidebar .brand img {
+    max-height: 50px; /* Sesuaikan tinggi logo EM */
+    width: auto;
+}
+
+/* --- MENU ITEMS --- */
+.sidebar .nav-link {
+    color: #e5e7eb; /* Teks Putih/Abu terang */
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    border-radius: 12px; /* Sudut menu rounded */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+}
+
+/* Ikon Menu */
+.sidebar .nav-link i {
+    width: 25px; /* Lebar tetap untuk wadah ikon */
+    text-align: center; /* Ikon di tengah wadahnya */
+    font-size: 1.2rem;
+    color: #fff;
+    flex-shrink: 0; /* Mencegah ikon mengecil */
+    margin: 0;
+    
+}
+
+/* Hover Effect (Tipis) */
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* --- ACTIVE STATE (PENTING: WARNA LIME) --- */
+.sidebar .nav-link.active {
+    /* 5. Background Lime seperti di gambar */
+    background-color: #d2f865 !important; /* Gunakan !important jika tertimpa bootstrap */
+    
+    /* 6. Teks & Ikon Berubah Hitam */
+    color: #000000 !important; 
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(210, 248, 101, 0.3); /* Glow lime halus */
+}
+
+/* Paksa ikon di menu aktif menjadi hitam */
+.sidebar .nav-link.active i {
+    color: #000000 !important;
+}
+
+
+/* --- LOGOUT BUTTON --- */
+.sidebar form {
+    margin-top: auto; /* Dorong ke bawah */
+    width: 100%;
+}
+
+.sidebar .btn-danger {
+    background-color: #dc3545; /* Merah */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.sidebar .btn-danger:hover {
+    background-color: #bb2d3b;
+}
+
+/* Penyesuaian Margin Content Utama */
+.main-content {
+    margin-left: 300px; /* Supaya tidak tertutup sidebar */
+    padding: 2rem;
+    transition: margin-left 0.3s;
+}
+
+
+/* --- 3. MAIN CARD (CONTAINER PUTIH BESAR) --- */
+.main-content-card {
+    background-color: #fff;
+    padding: 2.5rem; /* Padding lebih besar */
+    border-radius: 30px; /* Sangat rounded sesuai desain */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: none;
+    min-height: 85vh;
+}
+
+/* Header Title */
+.main-content-card h3 {
+    font-weight: 800; /* Lebih tebal */
+    color: #111;
+    font-size: 2rem;
+    margin-bottom: 0;
+    letter-spacing: -0.5px;
+}
+
+
+/* --- 4. CONTROLS (BUTTONS & SEARCH) --- */
+.table-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.top-header h3 {
+/* Add Button (HITAM PILL) */
+.add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background-color: #000; /* Hitam */
+    color: white;
+    padding: 0.8rem 2rem;
+    border-radius: 50px; /* Pill Shape */
     font-weight: 600;
-    margin: 0;
-    color: #333;
-    font-size: 1.5rem;
+    text-decoration: none;
+    border: none;
+    transition: background-color 0.3s ease;
 }
 
+.add-btn:hover {
+    background-color: #333;
+    color: white;
+}
+
+/* Search Bar (ABU-ABU PILL) */
 .search-bar-new {
     display: flex;
     align-items: center;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    background-color: #f8f9fa; 
-    width: 300px;
-    position: relative;
+    border: 1px solid transparent;
+    border-radius: 50px; /* Pill Shape */
+    padding: 0.7rem 1.5rem;
+    background-color: #f3f4f6; /* Abu-abu muda */
+    width: 320px;
+    transition: border-color 0.2s;
+}
+.search-bar-new:focus-within {
+    border-color: #d1d5db;
+    background-color: #fff;
 }
 
 .search-bar-new i {
-    color: #6c757d;
-    margin-right: 0.5rem;
+    color: #9ca3af;
+    margin-right: 10px;
+    font-size: 1.1rem;
 }
 
 .search-bar-new input {
@@ -181,142 +215,110 @@ body {
     flex-grow: 1;
     font-size: 0.95rem;
     background-color: transparent;
-}
-
-.clear-search-btn {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #999;
-    display: none;
-    line-height: 1;
-}
-
-.clear-search-btn:hover {
-    color: #333;
-}
-
-
-/* Kontrol untuk tombol Add dan filter */
-.table-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem; 
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.add-btn {
-    font-size: 13pt;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    height: 70px;
-    background-color: black;
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 50px;
     font-weight: 500;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out; 
+    color: #374151;
+}
+.search-bar-new input::placeholder {
+    color: #9ca3af;
 }
 
-.add-btn:hover {
-    background-color: #A69DEE; 
-    
-}
 
-.filter-dropdowns .dropdown-toggle {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    color: #333;
-    border-radius: 8px;
-    padding: 0.6rem 1.2rem;
-    font-weight: 400;
-}
-
+/* --- 5. TABLE STYLING (CARD ROWS) --- */
 .table-responsive {
     overflow-x: auto;
+    padding-bottom: 1rem; /* Ruang untuk shadow baris bawah */
 }
 
-
 .table {
+    width: 100%;
     vertical-align: middle;
-    border-collapse: separate; 
-    border-spacing: 0 0.75rem;
+    border-collapse: separate; /* PENTING: Agar baris terpisah */
+    border-spacing: 0 15px; /* Jarak vertikal antar kartu baris */
     min-width: 900px;
 }
 
 .table thead th {
-    
-    background-color: transparent; 
+    background-color: transparent;
     font-weight: 600;
-    border-bottom: 1px solid #e9ecef;
-    padding: 1rem;
-    color: #000000; 
-    font-size: 1rem;
-    text-transform: capitalize;
+    border-bottom: 2px solid #f3f4f6;
+    padding: 0 1rem 1rem 1rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+    text-transform: capitalize; /* Bukan uppercase, sesuai gambar */
 }
 
-.table td, .table th {
-    border: none;
-}
-
+/* Body Rows (Kartu) */
 .table tbody tr {
-    background-color: #f8f9fa; 
-    border-radius: 8px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-}
-
-.table tbody tr td:first-child {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
-
-.table tbody tr td:last-child {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Shadow halus */
+    border-radius: 16px;
+    transition: transform 0.2s;
 }
 
 .table tbody tr:hover {
-    background-color: #f1f3f5; 
-    transform: translateY(-2px);
-    transition: transform 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-.table td, .table th {
-    padding: 1.2rem 1rem; 
+.table td {
+    padding: 1.5rem 1rem; /* Padding besar agar tebal */
+    border: none;
+    color: #1f2937;
+    font-weight: 500;
 }
 
+/* Radius sudut untuk sel pertama & terakhir agar baris melengkung */
+.table tbody tr td:first-child {
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    padding-left: 1.5rem;
+}
+.table tbody tr td:last-child {
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-right: 1.5rem;
+}
+
+/* Grand Total Specific Style */
+.fw-bold-dark {
+    font-weight: 800;
+    color: #000;
+    font-size: 1.05rem;
+}
+
+
+/* --- 6. ACTIONS & STATUS --- */
+
+/* Status Check (Lime) */
+.status-icon-check {
+    color: #84cc16; /* Lime Green */
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+.status-icon-pending { color: #f59e0b; font-size: 1.5rem; display: flex; justify-content: center; }
+.status-icon-void { color: #ef4444; font-size: 1.5rem; display: flex; justify-content: center; }
+
+/* Action Buttons Container */
 .action-icons {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.8rem;
     justify-content: center;
     align-items: center;
 }
 
-.action-icons a, .action-icons button {
-    background: #e9ecef;
-    border: none;
-    padding: 0.6rem;
+/* Base Action Button Circle */
+.btn-circle {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    color: #6c757d;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s; 
     display: flex;
     justify-content: center;
     align-items: center;
     width: 38px;
     height: 38px;
     font-size: 1rem;
-    color: #000; /* Icon Hitam */
+    color: #ffffff; /* Icon Hitam */
 }
 
 /* Specific Colors */
