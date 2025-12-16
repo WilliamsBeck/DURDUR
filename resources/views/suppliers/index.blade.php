@@ -3,57 +3,6 @@
 @section('title', 'Supplier Management')
 
 @section('content')
-<<<<<<< HEAD
-    
-=======
-<<<<<<< Updated upstream
-        <div class="main-content-card">
-            <div class="table-controls">
->>>>>>> nikeisha
-
-    <div class="main-content-card">
-        {{-- Penyesuaian tata letak kontrol agar MIRIP MOCKUP --}}
-        <div class="table-controls" style="justify-content: flex-start; gap: 10px; flex-wrap: wrap; align-items: center;">
-
-            {{-- 1. Tombol Add Supplier (Gaya Hitam) --}}
-            <a href="{{ route('suppliers.create') }}" class="btn add-btn" style="background-color: #000; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 500;">
-                <i class="fa-solid fa-plus"></i>
-                Add Supplier
-            </a>
-
-            {{-- 2. Tombol Lihat Arsip Supplier (Gaya Kuning) --}}
-            <a href="{{ route('suppliers.archived') }}" class="btn btn-warning" style="background-color: #f7b825; color: #333; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500;">
-                <i class="fa-solid fa-archive"></i>
-                Lihat Arsip Supplier
-            </a>
-
-            {{-- 3. Search Bar (Diposisikan di sisi kanan dengan placeholder 'Search Product' mengikuti mockup) --}}
-            <div class="search-bar-new" style="margin-left: auto; max-width: 300px;">
-                <i class="fa-solid fa-search"></i>
-                <input type="text" id="searchInput" name="search" placeholder="Search Product" class="form-control" value="{{ request('search') }}">
-                <span class="clear-search-btn" id="clearSearchBtn" style="{{ request('search') ? 'display:block;' : 'display:none;' }}">&times;</span>
-            </div>
-
-        </div>
-
-<<<<<<< HEAD
-        @if(session('success'))
-        <div class="alert alert-success mt-3" style="display: none;">{{ session('success') }}</div>
-        @endif
-
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    {{-- Kolom Disesuaikan Agar Mirip Mockup: ID, Nama, PIC, Phone, Email, Action --}}
-                    <tr>
-                        <th style="width: 50px;">ID</th> 
-                        <th>Supplier Name</th>
-                        <th>PIC Supplier</th>
-                        <th>Supplier Phone</th>
-                        <th>Supplier Email</th>
-                        <th class="text-center" style="width: 100px;">Action</th>
-=======
-=======
 
 <div class="container-fluid">
     {{-- Main Content Card --}}
@@ -164,15 +113,14 @@
                             {{-- Actions --}}
                             <td>
                                 <div class="action-icons">
-
-                                    {{-- View (Ungu) --}}
-                                    <a href="{{ route('suppliers.show', $supplier->id) }}" class="btn-circle btn-purple-solid" title="Show Details">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-
                                     {{-- Edit (Kuning) --}}
                                     <a href="{{ route('suppliers.edit', $supplier->id) }}" class="btn-circle" style="background-color: #f59e0b;" title="Edit Supplier">
                                         <i class="fas fa-pencil-alt text-white"></i>
+                                    </a>
+                                    
+                                    {{-- View (Ungu) --}}
+                                    <a href="{{ route('suppliers.show', $supplier->id) }}" class="btn-circle btn-purple-solid" title="Show Details">
+                                        <i class="fas fa-eye"></i>
                                     </a>
 
                                     {{-- Archive (Merah) --}}
@@ -223,22 +171,12 @@
     </div>
 </div>
 
->>>>>>> Stashed changes
->>>>>>> nikeisha
 @endsection
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-<<<<<<< HEAD
-        // SweetAlert for success messages (TIDAK BERUBAH)
-=======
-<<<<<<< Updated upstream
-        // SweetAlert for success messages
-=======
         // SweetAlert Success
->>>>>>> Stashed changes
->>>>>>> nikeisha
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
@@ -250,15 +188,7 @@
             });
         @endif
 
-<<<<<<< HEAD
-        // SweetAlert for archive confirmation (TIDAK BERUBAH)
-=======
-<<<<<<< Updated upstream
-        // SweetAlert for delete confirmation
-=======
         // SweetAlert Confirm Archive (Custom Red Theme)
->>>>>>> Stashed changes
->>>>>>> nikeisha
         const deleteButtons = document.querySelectorAll('.btn-delete');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function (e) {
@@ -267,37 +197,7 @@
                 const actionType = this.getAttribute('data-action');
                 const form = this.closest('form');
 
-<<<<<<< HEAD
-                if (actionType === 'archive') {
-                    Swal.fire({
-                        title: `Arsipkan supplier "${dataName}"?`,
-                        text: "Supplier akan dipindahkan ke arsip dan dapat dipulihkan.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33', 
-                        cancelButtonColor: '#a4a4a4ff',
-                        confirmButtonText: 'Ya, Arsipkan!',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                } else {
-                    form.submit();
-                }
-=======
                 Swal.fire({
-<<<<<<< Updated upstream
-                    title: `Are you sure you want to delete ${dataName}?`,
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#B80000',
-                    cancelButtonColor: '#a4a4a4ff',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'Cancel'
-=======
                     // HTML Custom (Ikon Merah)
                     html: `
                         <div class="archive-icon-bg">
@@ -322,7 +222,6 @@
                     },
                     buttonsStyling: false,
                     reverseButtons: true
->>>>>>> Stashed changes
                 }).then((result) => {
                     if (result.isConfirmed) {
                         form.submit();
@@ -331,36 +230,6 @@
 >>>>>>> nikeisha
             });
         });
-<<<<<<< Updated upstream
-        
-        // Script untuk Search Bar (TIDAK BERUBAH)
-        const searchInput = document.getElementById('searchInput');
-        const clearSearchBtn = document.getElementById('clearSearchBtn');
-
-        searchInput.addEventListener('keyup', function(event) {
-            clearSearchBtn.style.display = this.value.length > 0 ? 'block' : 'none';
-
-            if (event.key === 'Enter') { 
-                const currentUrl = new URL(window.location.href);
-                currentUrl.searchParams.set('search', this.value);
-                currentUrl.searchParams.delete('page');
-                window.location.href = currentUrl.toString();
-            }
-        });
-        
-        clearSearchBtn.addEventListener('click', function() {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.delete('search');
-            currentUrl.searchParams.delete('page');
-            window.location.href = currentUrl.toString();
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (searchInput.value && searchInput.value.length > 0) {
-                clearSearchBtn.style.display = 'block';
-            }
-        });
-=======
 
         // Script Search Bar
         const searchInput = document.getElementById('searchInput');
@@ -372,6 +241,5 @@
                 }
             });
         }
->>>>>>> Stashed changes
     </script>
 @endpush

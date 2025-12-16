@@ -153,7 +153,7 @@
 
 /* Tombol Save (Lime Pill) */
 .btn-save {
-    background-color: #d2f865; /* Warna Lime */
+    background-color: #DCED63; /* Warna Lime */
     color: #000;
     font-weight: 700;
     padding: 0.8rem 2.5rem;
@@ -162,7 +162,7 @@
     transition: 0.3s;
 }
 .btn-save:hover {
-    background-color: #bded40;
+    background-color: #DCED63;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(210, 248, 101, 0.4);
 }
@@ -202,7 +202,7 @@
 }
 
 .btn-save {
-    background-color: #759438;
+    background-color: #DCED63;
     color: white;
     font-weight: 500;
     color: #333;
@@ -211,7 +211,7 @@
     border-bottom: none;
 }
 .btn-save:hover {
-    background-color: #60792d;
+    background-color: #DCED63;
     color: white;
 }
 
@@ -402,7 +402,6 @@
 .archive-icon-bg {
     width: 90px;
     height: 90px;
-    background-color: rgba(220, 53, 69, 0.15); /* Merah transparan */
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -469,4 +468,3 @@
 .pagination .page-item .page-link {
     color: #555; 
 }
-
