@@ -316,65 +316,13 @@ body {
     width: 38px;
     height: 38px;
     font-size: 1rem;
+    color: #000; /* Icon Hitam */
 }
 
-.action-icons a:hover {
-    background-color: #A69DEE; 
-    color: white;
+/* Specific Colors */
+.btn-red-solid {
+    background-color: #dc2626; /* Merah Solid */
 }
-
-.action-icons button:hover {
-    background-color: #B80000; 
-    color: white;
+.btn-purple-solid {
+    background-color: #a855f7; /* Ungu Solid */
 }
-
-.status-badge {
-    padding: 0.35rem 0.75rem;
-    border-radius: 16px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    display: inline-block;
-    min-width: 80px;
-    text-align: center;
-}
-
-.status-completed {
-    background-color: #d1fae5;
-    color: #067647;
-}
-
-.status-pending {
-    background-color: #ffedd5;
-    color: #9a3412;
-}
-
-.main-content {
-    margin-left: 350px;
-    padding: 2rem;
-}
-
-.page-title {
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-}
-
-.card { /* Ini jika ada card lain di luar main-content-card */
-    border: none;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-
-.sidebar .brand {
-    display: block;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    padding: 1rem 0; 
-}
-
-.sidebar .brand img {
-    max-width: 60%; 
-    height: auto;   
-    display: inline-block;
-}
-

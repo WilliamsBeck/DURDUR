@@ -135,14 +135,14 @@
                         <tbody>
                             @forelse ($produkRendahStok as $produk)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $produk->title }}</td>
-                                    <td><span class="badge bg-danger">{{ $produk->stock }}</span></td>
-                                    {{-- Menggunakan relasi Eloquent 'supplier' --}}
-                                    <td>{{ $produk->supplier->supplier_name ?? 'Supplier Tidak Ditemukan' }}</td>
-                                    <td>
-                                        <a href="{{ route('products.edit', $produk->id) }}" class="btn-purchase btn btn-sm " style="background-color: #A69DEE; font-weight:500">
-                                            Puchase
+                                    <td class="text-start px-4 fw-bold">{{ $loop->iteration }}</td>
+                                    <td class="fw-bold">{{ $produk->title }}</td>
+                                    <td class="fw-bold">{{ $produk->stock }}</td>
+                                    <td class="fw-bold">{{ $produk->supplier->supplier_name ?? '-' }}</td>
+                                    <td class="px-4">
+                                        {{-- Tombol Purchase Ungu --}}
+                                        <a href="{{ route('products.edit', $produk->id) }}" class="btn-purchase-purple">
+                                            Purchase
                                         </a>
                                     </td>
                                 </tr>
