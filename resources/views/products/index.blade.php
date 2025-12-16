@@ -4,186 +4,213 @@
 
 @section('content')
 
+<div class="container-fluid">
+    {{-- Main Content Card (.main-content-card dari CSS global) --}}
     <div class="main-content-card">
-        {{-- Pesan Notifikasi Sukses --}}
+
+        {{-- 1. TITLE --}}
+        <h3>Product Management</h3>
+
+        {{-- Flash Message (Opsional, jika SweetAlert gagal load) --}}
         @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+            <div class="alert alert-success border-0 bg-success-subtle rounded-3 mb-4">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
+        {{-- 2. CONTROLS --}}
         <div class="table-controls">
-            {{-- Tombol Add New Product --}}
-            <a href="{{ route('products.create') }}" class="btn add-btn">
-                <i class="fa-solid fa-plus"></i>
-                Add New Product
-            </a>
+            <div class="d-flex gap-2">
+                {{-- Tombol Add New Product (Hitam Pill .add-btn) --}}
+                <a href="{{ route('products.create') }}" class="add-btn">
+                    <i class="fas fa-plus"></i> Add Product
+                </a>
 
-            {{-- Tombol Lihat Arsip Produk (Style Disesuaikan dengan Contoh Anda) --}}
-            <a href="{{ route('products.archived') }}" class="btn btn-warning" style="margin-left: 10px; background-color: #f7b825; color: #333; border: none;">
-                <i class="fa-solid fa-archive"></i>
-                Lihat Arsip Produk
-            </a>
-            
-            {{-- Search Bar --}}
-            <div class="search-bar-new">
-                <i class="fa-solid fa-search"></i>
-                <input type="text" id="searchInput" name="search" placeholder="Search products..." class="form-control" value="{{ request('search') }}">
-                <span class="clear-search-btn" id="clearSearchBtn" style="{{ request('search') ? 'display:block;' : 'display:none;' }}">&times;</span>
+                {{-- Tombol Lihat Arsip (Menggunakan style inline sementara agar beda warna, atau buat class baru di CSS global nanti) --}}
+                <a href="{{ route('products.archived') }}" class="btn-circle btn-purple-solid text-white text-decoration-none px-4" 
+                   style="border-radius: 50px; width: auto; height: auto; padding: 0.8rem 1.5rem;" title="View Archived">
+                    <i class="fas fa-archive me-2"></i> Archive
+                </a>
             </div>
+
+            {{-- Search Bar (Abu-abu Pill .search-bar-new) --}}
+            <form method="GET" action="{{ route('products.index') }}" class="m-0" id="searchForm">
+                <div class="search-bar-new">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" name="search" placeholder="Search products..." value="{{ request('search') }}">
+                    @if(request('search'))
+                        <a href="{{ route('products.index') }}" class="text-muted ms-2" title="Clear Search">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
+        {{-- 3. TABLE --}}
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
-                        <th style="width: 100px; text-align: center;">Image</th>
-                        <th style="width: auto;">Title</th>
-                        <th style="width: 15%;">Category</th>
-                        <th style="width: 15%;">Supplier</th>
-                        
-                        {{-- PERBAIKAN 1: Rata Kanan untuk Price --}}
-                        <th style="width: 120px; text-align: right;">Price</th>
-                        
-                        {{-- PERBAIKAN 2: Rata Tengah untuk Stock --}}
-                        <th style="width: 80px; text-align: center;">Stock</th>
-                        
-                        {{-- PERBAIKAN 3: Rata Tengah untuk Actions --}}
-                        <th class="text-center" style="width: 120px; text-align: center;">Actions</th>
+                        <th class="text-center" width="10%">Image</th>
+                        <th width="25%">Title</th>
+                        <th width="15%">Category</th>
+                        <th width="15%">Supplier</th>
+                        <th width="15%" class="text-end">Price</th>
+                        <th width="10%" class="text-center">Stock</th>
+                        <th width="10%" class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($products as $product)
-                        <tr>
-                            <td class="text-center">
-                                <img src="{{ asset('storage/images/' . $product->image) }}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;" alt="Product Image">
-                            </td>
-                            <td><strong>{{ $product->title }}</strong></td>
-                            
-                            <td>
-                                {{ $product->category_product->product_category_name ?? 'No Category' }}
-                            </td>
-
-                            <td>
-                                {{ $product->supplier->supplier_name ?? 'No Supplier' }}
-                            </td>
-
-                            {{-- PERBAIKAN: Rata Kanan untuk data Price --}}
-                            <td style="text-align: right;">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-                            
-                            {{-- PERBAIKAN: Rata Tengah untuk data Stock --}}
-                            <td style="text-align: center;">{{ $product->stock }}</td>
-                            
-                            <td class="text-center">
-                                <div class="action-icons">
-                                    {{-- Tombol View --}}
-                                    <a href="{{ route('products.show', $product->id) }}" title="Show Details">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </a>
-                                    
-                                    {{-- Tombol Edit --}}
-                                    <a href="{{ route('products.edit', $product->id) }}" title="Edit Product">
-                                        <i class="fa-solid fa-pencil"></i>
-                                    </a>
-                                    
-                                    {{-- Tombol Delete/Archive (Menggunakan Form) --}}
-                                    <form class="d-inline" action="{{ route('products.destroy', $product->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        {{-- Class btn-delete akan dipicu oleh SweetAlert --}}
-                                        <button type="submit" class="btn-delete" title="Archive Product" data-name="{{ $product->title }}">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </form>
+                @forelse ($products as $product)
+                    <tr>
+                        {{-- Image --}}
+                        <td class="text-center">
+                            @if($product->image)
+                                <img src="{{ asset('storage/images/' . $product->image) }}" 
+                                     class="rounded" 
+                                     style="width: 50px; height: 50px; object-fit: cover;" 
+                                     alt="{{ $product->title }}">
+                            @else
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted" 
+                                     style="width: 50px; height: 50px; margin: 0 auto;">
+                                    <i class="fas fa-image"></i>
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center">
-                                <div class="alert alert-secondary mt-3">
-                                    No Product Data Available.
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
+                            @endif
+                        </td>
+
+                        {{-- Title --}}
+                        <td class="fw-bold-dark">{{ $product->title }}</td>
+                        
+                        {{-- Category --}}
+                        <td>{{ $product->category_product->product_category_name ?? '-' }}</td>
+
+                        {{-- Supplier --}}
+                        <td>{{ $product->supplier->supplier_name ?? '-' }}</td>
+
+                        {{-- Price (Right Aligned) --}}
+                        <td class="text-end fw-bold-dark">
+                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                        </td>
+                        
+                        {{-- Stock (Centered) --}}
+                        <td class="text-center">
+                            @if($product->stock <= 5)
+                                <span class="badge bg-danger rounded-pill px-3">{{ $product->stock }}</span>
+                            @else
+                                <span class="badge bg-success rounded-pill px-3">{{ $product->stock }}</span>
+                            @endif
+                        </td>
+                        
+                        {{-- Actions --}}
+                        <td>
+                            <div class="action-icons">
+                                {{-- View --}}
+                                <a href="{{ route('products.show', $product->id) }}" class="btn-circle btn-purple-solid" title="View Detail">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                
+                                {{-- Edit (Menggunakan warna kuning/orange, bisa tambahkan class btn-yellow-solid di CSS nanti, sementara pakai style inline atau reuse yang ada) --}}
+                                <a href="{{ route('products.edit', $product->id) }}" class="btn-circle" style="background-color: #f59e0b;" title="Edit">
+                                    <i class="fas fa-pencil-alt text-white"></i>
+                                </a>
+                                
+                                {{-- Archive/Delete --}}
+                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-circle btn-red-solid btn-delete" title="Archive" data-name="{{ $product->title }}">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-box-open fa-3x mb-3 text-light"></i><br>
+                            No Products Found
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
 
-        <div class="d-flex justify-content-center mt-4">
+        {{-- Pagination --}}
+        <div class="d-flex justify-content-end mt-4">
             {{ $products->appends(request()->query())->links() }}
         </div>
-    </div>
 
+    </div>
+</div>
 @endsection
 
 @push('scripts')
-    {{-- SweetAlert dan Script Search (Tetap sama) --}}
+    {{-- SweetAlert2 CDN --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
-        // SweetAlert untuk pesan sukses
+        // SweetAlert Success
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
-                title: 'SUCCESS',
+                title: 'Success!',
                 text: '{{ session('success') }}',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 2000,
+                customClass: {
+                    popup: 'rounded-4 shadow-lg'
+                }
             });
         @endif
 
-        // SweetAlert untuk konfirmasi hapus (sekarang Soft Delete/Arsip)
-        const deleteButtons = document.querySelectorAll('.btn-delete');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-                const dataName = this.getAttribute('data-name');
-                const form = this.closest('form');
+        // SweetAlert untuk konfirmasi Archive (Custom Red Theme)
+const deleteButtons = document.querySelectorAll('.btn-delete');
+deleteButtons.forEach(button => {
+    button.addEventListener('click', function (e) {
+        e.preventDefault();
+        const dataName = this.getAttribute('data-name');
+        const form = this.closest('form');
 
-                Swal.fire({
-                    title: `Archive product "${dataName}"?`,
-                    text: "This product will be moved to archive and can be restored later.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, Archive it!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-
-        // Script untuk Search Bar
-        const searchInput = document.getElementById('searchInput');
-        const clearSearchBtn = document.getElementById('clearSearchBtn');
-
-        // Menggunakan event keyup untuk memicu pencarian saat Enter ditekan atau membersihkan saat tombol clear diklik
-        searchInput.addEventListener('keyup', function(event) {
-            clearSearchBtn.style.display = this.value.length > 0 ? 'block' : 'none';
-            if (event.key === 'Enter') {
-                const currentUrl = new URL(window.location.href);
-                currentUrl.searchParams.set('search', this.value);
-                currentUrl.searchParams.delete('page');
-                window.location.href = currentUrl.toString();
+        Swal.fire({
+            // HTML Custom untuk meniru gambar referensi (Ikon Merah)
+            html: `
+                <div class="archive-icon-bg">
+                    <span class="archive-icon-text">!</span>
+                </div>
+                <div style="font-size: 1.2rem; font-weight: 700; color: #000; margin-bottom: 0.5rem; line-height: 1.4;">
+                    Are you sure you want to archive <strong>${dataName}</strong> ?
+                </div>
+                <div style="font-size: 0.95rem; color: #666; margin-bottom: 1.5rem;">
+                    You can restore it later from the archive.
+                </div>
+            `,
+            // Matikan icon bawaan
+            icon: null,
+            
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Archive',
+            cancelButtonText: 'Cancel',
+            
+            // Gunakan Class CSS dari transaction-form.css
+            customClass: {
+                popup: 'swal-archive-popup',
+                confirmButton: 'btn-swal-confirm-red',
+                cancelButton: 'btn-swal-cancel-grey',
+                actions: 'swal2-actions'
+            },
+            buttonsStyling: false,
+            reverseButtons: true, // Cancel kiri, Archive kanan
+            focusCancel: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
             }
         });
-        
-        clearSearchBtn.addEventListener('click', function() {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.delete('search');
-            currentUrl.searchParams.delete('page');
-            window.location.href = currentUrl.toString();
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (searchInput.value && searchInput.value.length > 0) {
-                clearSearchBtn.style.display = 'block';
-            }
-        });
+    });
+});
     </script>
 @endpush

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+{{-- Load CSS Khusus Form --}}
 <link rel="stylesheet" href="{{ asset('css/transaction-form.css') }}">
 
 <div class="container py-4">
@@ -10,8 +11,8 @@
             {{-- Container Utama (.form-card) --}}
             <div class="form-card">
                 
-                {{-- Judul --}}
-                <h3>Create New Transaction</h3>
+                {{-- Judul Halaman --}}
+                <h3 class="page-title-form">Create New Transaction</h3>
 
                 {{-- Error Messages --}}
                 @if ($errors->any())
@@ -29,22 +30,22 @@
 
                     {{-- BAGIAN 1: INFORMASI UMUM --}}
                     <div class="row g-4 mb-4">
-                        {{-- Cashier (Readonly) --}}
-                        <div class="col-md-6">
-                            <label class="form-label">Cashier</label>
-                            <input type="text" class="form-control" value="{{ auth()->user()->name ?? 'Cashier' }}" readonly>
-                        </div>
-
                         {{-- Customer Email --}}
-                        <div class="col-md-6">
-                            <label class="form-label">Customer Email (Optional)</label>
-                            <input type="email" name="customer_email" class="form-control" placeholder="example@email.com" value="{{ old('customer_email') }}">
+                        <div class="col-md-12">
+                            <label class="form-label">Customer Email</label>
+                            <input type="email" name="customer_email" class="form-control" placeholder="Optional" value="{{ old('customer_email') }}">
                         </div>
 
-                        {{-- Payment Method --}}
+                        {{-- Transaction Time (Readonly) --}}
                         <div class="col-md-6">
+                            <label class="form-label">Transaction Time</label>
+                            <input type="text" class="form-control" value="{{ now()->format('d F Y - H:i:s') }}" readonly>
+                        </div>
+                        
+                        {{-- Payment Method --}}
+                         <div class="col-md-6">
                             <label class="form-label">Payment Method</label>
-                            <select name="payment_id" class="form-select @error('payment_id') is-invalid @enderror">
+                            <select name="payment_id" class="form-select">
                                 <option value="">-- Select Payment --</option>
                                 @foreach($payments as $payment)
                                     <option value="{{ $payment->id }}" {{ old('payment_id') == $payment->id ? 'selected' : '' }}>
@@ -53,26 +54,18 @@
                                 @endforeach
                             </select>
                         </div>
-
-                        {{-- Transaction Time (Readonly) --}}
-                        <div class="col-md-6">
-                            <label class="form-label">Transaction Time</label>
-                            <input type="text" class="form-control" value="{{ now()->format('d F Y - H:i:s') }}" readonly>
-                        </div>
                     </div>
 
-                    <hr class="my-4" style="border-color: #e0e0e0;">
+                    {{-- BAGIAN 2: DAFTAR PRODUK --}}
+                    <div class="product-section-title">Select Products</div>
 
-                    {{-- BAGIAN 2: DAFTAR PRODUK (Sesuai CSS Grid) --}}
-                    <h5 class="mb-3" style="font-weight: 600;">Select Products</h5>
-
-                    {{-- Header Grid (#product-rows-header) --}}
+                    {{-- Header Grid (Sesuai CSS Grid baru) --}}
                     <div id="product-rows-header">
-                        <div>Product Name</div>         {{-- 4fr --}}
-                        <div>Unit Price</div>           {{-- 2fr --}}
-                        <div>Quantity</div>             {{-- 2fr --}}
-                        <div>Subtotal</div>             {{-- 2fr --}}
-                        <div class="text-center">Act</div> {{-- 1fr --}}
+                        <div>Product</div>             {{-- 4fr --}}
+                        <div>Unit Price</div>          {{-- 2fr --}}
+                        <div>Quantity</div>            {{-- 2fr --}}
+                        <div>Subtotal</div>            {{-- 2fr --}}
+                        <div class="text-center"></div> {{-- 0.5fr (Action) --}}
                     </div>
 
                     {{-- Container Baris Produk --}}
@@ -80,27 +73,27 @@
                         {{-- Baris produk akan ditambahkan di sini oleh JS --}}
                     </div>
 
-                    {{-- Tombol Tambah Produk --}}
-                    <button type="button" class="btn btn-dark mt-3 btn-sm" id="add-product-btn" style="border-radius: 8px;">
+                    {{-- Tombol Tambah Produk (.btn-add-product) --}}
+                    <button type="button" class="btn-add-product mt-3" id="add-product-btn">
                         + Add Product
                     </button>
 
                     {{-- BAGIAN 3: TOTAL & TOMBOL AKSI (.form-actions) --}}
                     <div class="form-actions">
-                        <div class="me-auto">
-                            <span class="text-muted">Grand Total:</span>
-                            {{-- #grand-total-display --}}
-                            <span id="grand-total-display" class="ms-2">Rp 0</span>
+                        
+                        {{-- Grand Total (kiri) --}}
+                        <div id="grand-total-display">
+                            Grand Total: <span id="total-amount">Rp 0</span>
                         </div>
 
-                        {{-- .btn-cancel --}}
-                        <a href="{{ route('transactions.index') }}" class="btn btn-cancel text-decoration-none">
+                        {{-- Tombol Cancel (.btn-cancel) --}}
+                        <a href="{{ route('transactions.index') }}" class="btn-cancel">
                             Cancel
                         </a>
 
-                        {{-- .btn-save --}}
-                        <button type="submit" class="btn btn-save">
-                            Save Transaction
+                        {{-- Tombol Save (.btn-save) --}}
+                        <button type="submit" class="btn-save">
+                            Save
                         </button>
                     </div>
 
@@ -115,10 +108,10 @@
 <script>
     const container = document.getElementById('product-rows-container');
     const addBtn = document.getElementById('add-product-btn');
-    const grandTotalDisplay = document.getElementById('grand-total-display');
+    const totalAmountSpan = document.getElementById('total-amount');
 
     // Format Rupiah
-    const formatRupiah = (num) => 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+    const formatRupiah = (num) => 'Rp. ' + new Intl.NumberFormat('id-ID').format(num);
 
     function calculateGrandTotal() {
         let total = 0;
@@ -131,7 +124,7 @@
             row.querySelector('.subtotal-text').innerText = formatRupiah(subtotal);
             total += subtotal;
         });
-        grandTotalDisplay.innerText = formatRupiah(total);
+        totalAmountSpan.innerText = formatRupiah(total);
     }
 
     function addRow() {
@@ -149,27 +142,27 @@
                     <option value="">Select Product</option>
                     @foreach ($products as $product)
                         <option value="{{ $product->id }}" data-price="{{ $product->price }}" data-stock="{{ $product->stock }}">
-                            {{ $product->title }} (Stok: {{ $product->stock }})
+                            {{ $product->title }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
             {{-- Kolom 2: Unit Price (2fr) --}}
-            <div class="unit-price-text">Rp 0</div>
+            <div class="unit-price-text">Rp. 0</div>
 
             {{-- Kolom 3: Quantity (2fr) --}}
             <div>
-                <input type="number" name="products[${index}][quantity]" class="form-control qty-input" value="1" min="1" required>
+                <input type="number" name="products[${index}][quantity]" class="form-control qty-input" placeholder="Qty" value="1" min="1" required>
             </div>
 
             {{-- Kolom 4: Subtotal (2fr) --}}
-            <div class="subtotal-text">Rp 0</div>
+            <div class="subtotal-text">Rp. 0</div>
 
-            {{-- Kolom 5: Action (1fr) --}}
+            {{-- Kolom 5: Action (0.5fr) --}}
             <div class="d-flex justify-content-center">
                 <button type="button" class="btn-remove-product remove-row" title="Remove">
-                    &times;
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
         `;
@@ -198,9 +191,13 @@
     });
 
     container.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-row')) {
-            e.target.closest('.product-row').remove();
-            calculateGrandTotal();
+        // Cek tombol atau icon di dalamnya
+        if (e.target.classList.contains('remove-row') || e.target.closest('.remove-row')) {
+            const row = e.target.closest('.product-row');
+            if(row) {
+                row.remove();
+                calculateGrandTotal();
+            }
         }
     });
 

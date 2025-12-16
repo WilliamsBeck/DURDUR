@@ -3,12 +3,49 @@
 @section('title', 'Sales Transactions')
 
 @section('content')
-{{-- Load CSS Custom Baru --}}
-<link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+{{-- Style Tambahan Khusus untuk SweetAlert Custom (Ungu) --}}
+@push('styles')
+<style>
+    /* Container Popup Bulat */
+    .swal-void-popup {
+        border-radius: 30px !important;
+        padding: 2rem !important;
+        width: 450px !important;
+    }
+    /* Ikon Custom (Lingkaran Ungu Pucat) */
+    .void-icon-bg {
+        width: 90px; height: 90px;
+        background-color: #a69dee33;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.5rem auto;
+    }
+    /* Tanda Seru (!) Ungu Solid */
+    .void-icon-text {
+        font-size: 3.5rem; font-weight: 700; color: #a69dee; line-height: 1;
+    }
+    /* Text Konfirmasi */
+    .void-text {
+        font-size: 1.1rem; font-weight: 600; color: #000; margin-bottom: 1.5rem;
+    }
+    /* Tombol Cancel */
+    .btn-swal-cancel {
+        background-color: #e0e0e0 !important; color: #000 !important;
+        font-weight: 600 !important; padding: 12px 30px !important;
+        border-radius: 12px !important; border: none !important; margin-right: 10px !important;
+    }
+    /* Tombol Yes Void */
+    .btn-swal-confirm {
+        background-color: #a69dee !important; color: #000 !important;
+        font-weight: 600 !important; padding: 12px 30px !important;
+        border-radius: 12px !important; border: none !important; box-shadow: none !important;
+    }
+</style>
+@endpush
 
 <div class="container-fluid">
-    {{-- Card Putih Besar --}}
+    {{-- Card Putih Besar (.main-content-card dari transaction.css) --}}
     <div class="main-content-card">
 
         {{-- 1. TITLE --}}
@@ -18,21 +55,22 @@
         <div class="table-controls">
             {{-- Tombol Add Hitam --}}
             <a href="{{ route('transactions.create') }}" class="add-btn">
-                <i class="bi bi-plus-lg"></i> Add Transaction
+                <i class="fas fa-plus"></i> Add Transaction
             </a>
 
             {{-- Search Bar Abu-abu Pill --}}
             <form method="GET" action="{{ route('transactions.index') }}" class="m-0">
                 <div class="search-bar-new">
-                    <i class="bi bi-search"></i>
+                    <i class="fas fa-search"></i>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search Transaction Date">
                 </div>
             </form>
         </div>
 
+        {{-- Flash Message --}}
         @if(session('success'))
             <div class="alert alert-success border-0 bg-success-subtle rounded-3 mb-4">
-                <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
             </div>
         @endif
 
@@ -52,44 +90,57 @@
                 <tbody>
                 @forelse ($transactions as $trx)
                     <tr>
+                        {{-- ID --}}
                         <td class="text-center text-muted">#{{ $trx->id }}</td>
+                        
+                        {{-- Date --}}
                         <td>{{ $trx->transaction_date->format('d, F Y') }}</td>
+                        
+                        {{-- Email --}}
                         <td>{{ $trx->customer_email ?? '-' }}</td>
                         
-                        {{-- Class fw-bold-dark untuk menebalkan harga --}}
+                        {{-- Grand Total (Bold Dark) --}}
                         <td class="fw-bold-dark">
                             Rp. {{ number_format($trx->grand_total, 2, ',', '.') }}
                         </td>
 
+                        {{-- Status Icons --}}
                         <td>
                             @if($trx->status == 'void')
-                                <div class="status-icon-void"><i class="bi bi-x-circle"></i></div>
+                                {{-- Icon Void Merah --}}
+                                <div class="status-icon-void"><i class="fas fa-times-circle"></i></div>
                             @else
-                                {{-- Default Lime Check --}}
-                                <div class="status-icon-check"><i class="bi bi-check-circle"></i></div>
+                                {{-- Icon Check Lime --}}
+                                <div class="status-icon-check"><i class="fas fa-check-circle"></i></div>
                             @endif
                         </td>
 
+                        {{-- Action Buttons --}}
                         <td>
                             <div class="action-icons">
-                                {{-- Tombol Void Merah --}}
-                                <form action="{{ route('transactions.void', $trx->id) }}" method="POST" onsubmit="return confirm('Void?');">
-                                    @csrf
-                                    <button type="submit" class="btn-circle btn-red-solid" title="Void">
-                                        <i class="bi bi-x-lg"></i>
-                                    </button>
-                                </form>
+                                
+                                {{-- Tombol Void (Merah) dengan SweetAlert --}}
+                                {{-- PENTING: Panggil fungsi confirmVoid dengan URL route 'transactions.void.form' (GET) --}}
+                                <button type="button" 
+                                        class="btn-circle btn-red-solid" 
+                                        title="Void"
+                                        onclick="confirmVoid('{{ route('transactions.void.form', $trx->id) }}', 'INV-TXN-{{ $trx->id }}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
 
-                                {{-- Tombol Detail Ungu --}}
+                                {{-- Tombol Detail (Ungu) --}}
                                 <a href="{{ route('transactions.show', $trx->id) }}" class="btn-circle btn-purple-solid" title="View">
-                                    <i class="bi bi-eye-fill"></i>
+                                    <i class="fas fa-eye"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">No Data Available</td>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-3 text-light"></i><br>
+                            No Transactions Found
+                        </td>
                     </tr>
                 @endforelse
                 </tbody>
@@ -103,3 +154,39 @@
     </div>
 </div>
 @endsection
+
+{{-- Script SweetAlert Custom --}}
+@push('scripts')
+<script>
+    // Fungsi ini menerima URL redirect (halaman form void)
+    function confirmVoid(urlRedirect, transactionCode) {
+        Swal.fire({
+            html: `
+                <div class="void-icon-bg">
+                    <span class="void-icon-text">!</span>
+                </div>
+                <div class="void-text">
+                    Are you sure you want to void the <br>
+                    transaction <strong>${transactionCode}</strong> ?
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Void',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'swal-void-popup',
+                confirmButton: 'btn-swal-confirm',
+                cancelButton: 'btn-swal-cancel'
+            },
+            buttonsStyling: false,
+            reverseButtons: true,
+            focusCancel: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect browser ke halaman Void Form
+                window.location.href = urlRedirect;
+            }
+        });
+    }
+</script>
+@endpush

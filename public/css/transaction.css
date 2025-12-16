@@ -315,17 +315,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s;
-    text-decoration: none;
-}
-.btn-circle:hover {
-    opacity: 0.85;
-}
-.btn-circle i {
+    width: 38px;
+    height: 38px;
     font-size: 1rem;
-    color: #000; /* Icon Hitam */
+    color: #ffffff; /* Icon Hitam */
 }
 
 /* Specific Colors */

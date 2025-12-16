@@ -1,75 +1,120 @@
 @extends('layouts.app')
 
 @section('content')
+{{-- Load CSS External Form --}}
+<link rel="stylesheet" href="{{ asset('css/transaction-form.css') }}">
 
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
+            
+            {{-- Container Utama (.form-card) --}}
             <div class="form-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3>Product Detail</h3>
-                    </div>
                 
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="product-image-container rounded" style="width: 100%; height: 250px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {{-- Header: Title & Back Button --}}
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h3>Product Detail</h3>
+                    {{-- Tombol Back menggunakan style .btn-cancel --}}
+                    <a href="{{ route('products.index') }}" class="btn-cancel text-decoration-none">
+                        <i class="fas fa-arrow-left me-2"></i> Back
+                    </a>
+                </div>
+                
+                <div class="row g-5">
+                    {{-- KOLOM KIRI: GAMBAR --}}
+                    <div class="col-lg-4">
+                        <div class="d-flex align-items-center justify-content-center bg-light overflow-hidden position-relative" 
+                             style="height: 350px; border-radius: 20px; border: 1px solid #f1f1f1;">
+                            
                             @if ($product->image)
-                                <img src="{{ asset('storage/images/'.$product->image) }}" class="img-fluid" alt="{{ $product->title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="{{ asset('storage/images/'.$product->image) }}" 
+                                     class="img-fluid w-100 h-100" 
+                                     alt="{{ $product->title }}" 
+                                     style="object-fit: cover;">
                             @else
-                                <div style="font-size: 40px; color: #ccc;">⛰️</div>
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-image fa-4x mb-3 text-secondary"></i>
+                                    <p class="mb-0 fw-bold">No Image</p>
+                                </div>
                             @endif
+
+                            {{-- Badge Stock Overlay --}}
+                            <div class="position-absolute top-0 start-0 m-3">
+                                <span class="badge rounded-pill px-3 py-2 shadow-sm {{ $product->stock > 0 ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $product->stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-8">
-                        <h4 class="mb-4" style="font-weight: bold;">{{ $product->title }}</h4>
+                    {{-- KOLOM KANAN: DETAIL INFO --}}
+                    <div class="col-lg-8">
+                        {{-- Product Title --}}
+                        <h2 class="fw-bold text-dark mb-4">{{ $product->title }}</h2>
                         
-                        <div class="row mb-3">
+                        {{-- Info Grid --}}
+                        <div class="row g-4 mb-4">
+                            {{-- Category --}}
                             <div class="col-md-6">
-                                <label class="form-label text-muted" style="font-size: 14px;">Category</label>
-                                <p class="fs-6 fw-bold mb-0">{{ $product->category_product->product_category_name ?? '-' }}</p>
+                                <label class="form-label">Category</label>
+                                <div class="fs-5 fw-bold text-dark">
+                                    {{ $product->category_product->product_category_name ?? '-' }}
+                                </div>
                             </div>
+
+                            {{-- Supplier --}}
                             <div class="col-md-6">
-                                <label class="form-label text-muted" style="font-size: 14px;">Supplier</label>
-                                <p class="fs-6 fw-bold mb-0">{{ $product->supplier->supplier_name ?? '-' }}</p>
+                                <label class="form-label">Supplier</label>
+                                <div class="fs-5 fw-bold text-dark">
+                                    {{ $product->supplier->supplier_name ?? '-' }}
+                                </div>
+                            </div>
+
+                            {{-- Cost Price --}}
+                            <div class="col-md-6">
+                                <label class="form-label">Cost Price</label>
+                                <div class="fs-5 fw-bold text-dark">
+                                    Rp {{ number_format($product->cost_price, 0, ',', '.') }}
+                                </div>
+                            </div>
+
+                            {{-- Sales Price --}}
+                            <div class="col-md-6">
+                                <label class="form-label">Sales Price</label>
+                                <div class="fs-5 fw-bold text-success">
+                                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                                </div>
+                            </div>
+
+                            {{-- Current Stock --}}
+                            <div class="col-12">
+                                <label class="form-label">Current Stock</label>
+                                <div class="fs-4 fw-bold text-dark">
+                                    {{ $product->stock ?? 0 }} <span class="fs-6 fw-normal text-muted">Units</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label text-muted" style="font-size: 14px;">Cost Price</label>
-                                <p class="fs-5 fw-bold mb-0">Rp {{ number_format($product->cost_price, 0, ',', '.') }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-muted" style="font-size: 14px;">Sales Price</label>
-                                <p class="fs-5 fw-bold mb-0">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                        {{-- Description --}}
+                        <div class="mb-5">
+                            <label class="form-label">Description</label>
+                            {{-- Menggunakan background style mirip input readonly agar konsisten --}}
+                            <div class="p-3" style="background-color: #f8f9fa; border-radius: 12px; border: 1px solid #f1f1f1; min-height: 100px;">
+                                {!! $product->description ?? '<span class="text-muted">No description provided.</span>' !!}
                             </div>
                         </div>
                         
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label text-muted" style="font-size: 14px;">Stock</label>
-                                <p class="fs-5 fw-bold mb-0">{{ $product->stock ?? 0 }}</p>
-                            </div>
+                        {{-- Tombol Edit (.btn-save warna Lime) --}}
+                        <div class="d-flex justify-content-end border-top pt-4">
+                            <a href="{{ route('products.edit', $product->id) }}" class="btn-save text-decoration-none text-center" style="display: inline-block;">
+                                <i class="fas fa-edit me-2"></i> Edit Product
+                            </a>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label text-muted" style="font-size: 14px;">Description</label>
-                            <div class="p-3 bg-light rounded product-description-box" style="border: 1px solid #e0e0e0; min-height: 100px;">
-                                {!! $product->description !!}
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-end mt-4">
-                            <a href="{{ route('products.index') }}" class="btn btn-secondary me-2">
-                                Back
-                            </a>
-                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-primary">
-                                Edit
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection

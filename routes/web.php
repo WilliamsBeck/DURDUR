@@ -8,37 +8,26 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\ReportController;
-
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\CategoryProductController;
+use App\Http\Controllers\UserController; // Pastikan ini di-use
 
 /*
 |--------------------------------------------------------------------------
-| Redirect Root
+| GUEST ROUTES
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-/*
-|--------------------------------------------------------------------------
-| AUTH ROUTES
-|--------------------------------------------------------------------------
-*/
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
-
-Route::get('/register', [AuthController::class, 'registerForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.process');
-
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-/*
-|--------------------------------------------------------------------------
-| EMAIL (OPTIONAL / TESTING)
-|--------------------------------------------------------------------------
-*/
-Route::get('/send-email/{id}', [SalesTransactionController::class, 'sendEmail'])
-    ->name('transactions.sendEmail');
+// (Register opsional, bisa dimatikan jika tidak butuh public register)
+Route::get('/register', [AuthController::class, 'registerForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 
 /*
 |--------------------------------------------------------------------------
@@ -47,106 +36,49 @@ Route::get('/send-email/{id}', [SalesTransactionController::class, 'sendEmail'])
 */
 Route::middleware(['auth'])->group(function () {
 
-Route::get('/reports', [ReportController::class, 'index'])->name('reports.sales');
-Route::get('/reports/purchasement', [ReportController::class, 'purchasement'])->name('reports.purchasement');
-Route::get('/reports/product-sales', [ReportController::class, 'productSales'])->name('reports.product_sales');
-Route::get('/reports/remaining-stock', [ReportController::class, 'remainingStock'])->name('reports.remaining_stock');
+    // DASHBOARD
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // ================= DASHBOARD =================
-Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+    // REPORTS
+    Route::prefix('reports')->name('reports.')->group(function() {
+        Route::get('/', [ReportController::class, 'index'])->name('sales');
+        Route::get('/purchasement', [ReportController::class, 'purchasement'])->name('purchasement');
+        Route::get('/product-sales', [ReportController::class, 'productSales'])->name('product_sales');
+        Route::get('/remaining-stock', [ReportController::class, 'remainingStock'])->name('remaining_stock');
+    });
 
-Route::get('products/archived', [ProductController::class, 'archived'])
-    ->name('products.archived')
-    ->middleware('auth'); // Sesuaikan middleware jika perlu
+    // USER MANAGEMENT (Tambahan Baru)
+    Route::resource('users', UserController::class);
 
-// Route Stock Adjustment
-Route::resource('stock-adjustments', StockAdjustmentController::class)->only(['index', 'create', 'store', 'show']);
+    // PRODUCTS
+    Route::get('products/archived', [ProductController::class, 'archived'])->name('products.archived');
+    Route::put('products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore')->withTrashed();
+    Route::resource('products', ProductController::class);
 
+    // SUPPLIERS
+    Route::get('suppliers/archived', [SupplierController::class, 'archived'])->name('suppliers.archived');
+    Route::put('suppliers/{id}/restore', [SupplierController::class, 'restore'])->name('suppliers.restore')->withTrashed();
+    Route::resource('suppliers', SupplierController::class);
 
-// ================= PRODUCTS =================
-Route::resource('/products', \App\Http\Controllers\ProductController::class);
+    // CATEGORIES
+    Route::get('category_products/archived', [CategoryProductController::class, 'archived'])->name('category_products.archived');
+    Route::put('category_products/{id}/restore', [CategoryProductController::class, 'restore'])->name('category_products.restore')->withTrashed();
+    Route::resource('category_products', CategoryProductController::class);
 
-   
+    // STOCK ADJUSTMENTS
+    Route::resource('stock-adjustments', StockAdjustmentController::class)->only(['index', 'create', 'store', 'show']);
 
-// ... rute resource products yang sudah ada
+    // SALES TRANSACTIONS
+    Route::get('transactions/{transaction}/void-form', [SalesTransactionController::class, 'voidForm'])->name('transactions.void.form');
+    Route::post('transactions/{transaction}/void', [SalesTransactionController::class, 'void'])->name('transactions.void');
+    Route::get('/send-email/{id}', [SalesTransactionController::class, 'sendEmail'])->name('transactions.sendEmail');
+    Route::resource('transactions', SalesTransactionController::class)->except(['destroy']);
 
-Route::put('products/{id}/restore', [ProductController::class, 'restore'])
-    ->name('products.restore')
-    // Biasanya rute restore diletakkan di luar resource atau sebagai aksi tambahan
-    // Pastikan ini diletakkan sebelum Route::resource jika Anda menggunakannya. 
-    ->withTrashed(); // Opsi: Agar Laravel bisa menemukan produk yang di-soft delete
-
-
-
-
-
-    // ================= SUPPLIERS =================
-Route::get('suppliers/archived', [\App\Http\Controllers\SupplierController::class, 'archived'])
-    ->name('suppliers.archived');
-
-Route::put('suppliers/{id}/restore', [\App\Http\Controllers\SupplierController::class, 'restore'])
-    ->name('suppliers.restore')
-    ->withTrashed();
-
-    Route::resource('/suppliers', \App\Http\Controllers\SupplierController::class);
-
-    // ================= PRODUCT CATEGORIES =================
-    Route::get('category_products/archived', [\App\Http\Controllers\CategoryProductController::class, 'archived'])
-        ->name('category_products.archived'); // <-- INI YANG HILANG!
-
-    Route::put('category_products/{id}/restore', [\App\Http\Controllers\CategoryProductController::class, 'restore'])
-        ->name('category_products.restore')
-        ->withTrashed();
-
-    Route::resource('/category_products', \App\Http\Controllers\CategoryProductController::class);
-
-    // ================= SALES TRANSACTIONS =================
-    // ❌ DESTROY DIHAPUS (KARENA PAKAI VOID)
-    Route::resource('/transactions', SalesTransactionController::class)
-        ->except(['destroy']);
-
-
-   // Route baru untuk menampilkan form void
-    Route::get('transactions/{transaction}/void-form', [SalesTransactionController::class, 'voidForm'])
-        ->name('transactions.void.form');
-
-// Route untuk memproses POST/submit void (Ini sudah ada dari jawaban sebelumnya, pastikan tetap ada)
-    Route::post('transactions/{transaction}/void', [SalesTransactionController::class, 'void'])
-        ->name('transactions.void');
-
-
-
-
-
-
-
-   // ... (Routes untuk Sales Transactions) ...
-
-
-
-// Routes untuk Purchase Transactions
-Route::resource('purchases', PurchaseController::class)->except(['edit', 'update', 'destroy']);
-
-Route::get('/purchases/products-by-supplier/{supplierId}', [PurchaseController::class, 'getProductsBySupplier'])->name('purchases.products-by-supplier');
-
-
-// routes/web.php
-
-Route::resource('purchases', PurchaseController::class);
-
-// Tambahkan route ini di luar resource
-Route::put('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])
-     ->name('purchases.updateStatus');
-
-     // Route untuk menampilkan form void
-    Route::get('purchases/{purchase}/void', [PurchaseController::class, 'voidForm'])
-         ->name('purchases.voidForm');
-
-    // Route untuk memproses void (menggunakan POST)
-    Route::post('purchases/{purchase}/void', [PurchaseController::class, 'void'])
-         ->name('purchases.void');
-
-
+    // PURCHASE TRANSACTIONS
+    Route::get('/purchases/products-by-supplier/{supplierId}', [PurchaseController::class, 'getProductsBySupplier'])->name('purchases.products-by-supplier');
+    Route::put('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
+    Route::get('purchases/{purchase}/void', [PurchaseController::class, 'voidForm'])->name('purchases.voidForm');
+    Route::post('purchases/{purchase}/void', [PurchaseController::class, 'void'])->name('purchases.void');
+    Route::resource('purchases', PurchaseController::class);
 
 });

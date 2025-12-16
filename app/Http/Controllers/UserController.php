@@ -8,76 +8,94 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-   
-    public function index()
+    // Tampilkan daftar user
+    public function index(Request $request)
     {
-        return User::all();
+        $query = User::query();
+        
+        // Fitur Search
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+
+        $users = $query->paginate(10); // Gunakan pagination
+
+        return view('users.index', compact('users'));
     }
 
-  
+    // Tampilkan Form Tambah User
+    public function create()
+    {
+        return view('users.create');
+    }
+
+    // Proses Simpan User
     public function store(Request $request)
     {
-        // Validasi input
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8', // Tambahkan |confirmed jika ada input confirm password
         ]);
 
-        // Hash password
-        $validatedData['password'] = bcrypt($validatedData['password']);
+        $validatedData['password'] = Hash::make($validatedData['password']);
 
-        // Buat user baru
-        $user = User::create($validatedData);
+        User::create($validatedData);
 
-        return response()->json($user, 201);
-
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-   
+    // Tampilkan Detail User (Opsional)
     public function show($id)
     {
-        $user = User::find($id);
-            if (!$user) return response()->json(['message' => 'User not found'], 404);
-            return $user;
-
+        $user = User::findOrFail($id);
+        return view('users.show', compact('user'));
     }
 
-    
+    // Tampilkan Form Edit User
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        return view('users.edit', compact('user'));
+    }
+
+    // Proses Update User
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        $user = User::findOrFail($id);
 
-        // Validasi input
         $validatedData = $request->validate([
-            'name' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:8',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id, // Ignore current user email
+            'password' => 'nullable|string|min:8', // Password nullable saat edit
         ]);
 
-        // Hash password jika ada input password baru
-        if (isset($validatedData['password'])) {
-            $validatedData['password'] = bcrypt($validatedData['password']);
+        $user->name = $validatedData['name'];
+        $user->email = $validatedData['email'];
+
+        // Hanya update password jika diisi
+        if ($request->filled('password')) {
+            $user->password = Hash::make($validatedData['password']);
         }
 
-        // Update user
-        $user->update($validatedData);
+        $user->save();
 
-        return response()->json($user, 200);
-
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
-    
+    // Hapus User
     public function destroy($id)
     {
-        $user = User::find($id);
-        if (!$user) return response()->json(['message' => 'User not found'], 404);
+        $user = User::findOrFail($id);
+        
+        // Mencegah hapus diri sendiri
+        if (auth()->id() == $id) {
+            return redirect()->route('users.index')->with('error', 'Cannot delete your own account.');
+        }
 
         $user->delete();
-        return response()->json(null, 204);
 
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

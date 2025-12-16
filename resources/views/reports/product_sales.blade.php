@@ -1,67 +1,107 @@
 @extends('layouts.app')
 
+@section('title', 'Product Sold Report')
+
 @section('content')
 
-<div class="container-fluid py-4">
-    <h2 class="mb-4 fw-bold" style="color: #111827;">Report</h2>
+<div class="container-fluid">
+    
+    {{-- Container Utama (.main-content-card dari transaction.css) --}}
+    <div class="main-content-card">
 
-    <div class="report-card">
+        {{-- HEADER TITLE --}}
+        <h3 class="mb-4 fw-bold">Report</h3>
+
         {{-- 1. TAB MENU --}}
-        <div class="d-flex flex-wrap mb-4">
-
-            <a href="{{ route('reports.sales') }}" class="btn-tab">Sales Report</a>
-            <a href="{{ route('reports.purchasement') }}" class="btn-tab">Purchasement Report</a>
-            <a href="{{ route('reports.product_sales') }}" class="btn-tab active">Product Sold Report</a>
-            <a href="{{ route('reports.remaining_stock') }}" class="btn-tab">Remaining Stock Report</a>
+        <div class="report-tabs">
+            <a href="{{ route('reports.sales') }}" class="report-tab-item">
+                Sales Report
+            </a>
+            <a href="{{ route('reports.purchasement') }}" class="report-tab-item">
+                Purchasement Report
+            </a>
+            <a href="{{ route('reports.product_sales') }}" class="report-tab-item active">
+                Product Sold Report
+            </a>
+            <a href="{{ route('reports.remaining_stock') }}" class="report-tab-item">
+                Remaining Stock Report
+            </a>
         </div>
 
         {{-- 2. FILTER & DOWNLOAD --}}
-        <form action="{{ route('reports.product_sales') }}" method="GET" class="d-flex justify-content-between align-items-center mb-5 flex-wrap">
-            <div class="d-flex align-items-center gap-2">
-                <span class="fw-bold me-2">Date</span>
-                <input type="date" name="start_date" value="{{ $startDate }}" class="form-date" onchange="this.form.submit()">
-                <span>-</span>
-                <input type="date" name="end_date" value="{{ $endDate }}" class="form-date" onchange="this.form.submit()">
+        <form action="{{ route('reports.product_sales') }}" method="GET" class="report-filter-container">
+            
+            {{-- Date Filter --}}
+            <div class="d-flex align-items-center">
+                <span class="report-label">Date</span>
+                
+                <input type="date" name="start_date" value="{{ $startDate }}" 
+                       class="report-date-input" 
+                       onchange="this.form.submit()">
+                
+                <span class="report-separator">-</span>
+                
+                <input type="date" name="end_date" value="{{ $endDate }}" 
+                       class="report-date-input" 
+                       onchange="this.form.submit()">
             </div>
             
-            <button type="button" class="btn-purple">
+            {{-- Download Button --}}
+            <button type="button" class="btn-download-pdf">
                 Download PDF
             </button>
         </form>
 
         {{-- 3. CONTENT DATA --}}
-        <div class="px-2">
+        <div class="px-1">
             
-            {{-- Section 1: General Stats --}}
-            <div class="row mb-3">
-                <div class="col-md-6 stat-label">Total Product Quantity</div>
-                <div class="col-md-6 stat-value">{{ $totalProductQuantity }}</div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-6 stat-label">Total Product Sales</div>
-                <div class="col-md-6 stat-value">Rp. {{ number_format($totalProductSales, 0, ',', '.') }}</div>
+            {{-- SECTION: GENERAL STATS --}}
+            <div class="mb-4">
+                <div class="report-row">
+                    <div class="report-item-label">Total Product Quantity</div>
+                    {{-- Menggunakan style font-weight agak tebal untuk angka quantity --}}
+                    <div class="report-item-amount" style="font-weight: 600;">{{ $totalProductQuantity }}</div>
+                </div>
+                <div class="report-row">
+                    <div class="report-item-label">Total Product Sales</div>
+                    <div class="report-item-amount">Rp. {{ number_format($totalProductSales, 0, ',', '.') }}</div>
+                </div>
             </div>
 
-            <div class="divider"></div>
+            <div class="report-divider"></div>
 
-            {{-- Section 2: List per Kategori --}}
+            {{-- SECTION: LIST PER KATEGORI --}}
             @forelse($reportData as $categoryName => $products)
-                {{-- Header Kategori (Contoh: Category - Besi) --}}
-                <div class="category-header">
+                
+                {{-- Header Kategori (Custom Style Background Abu Muda) --}}
+                <div class="report-table-header mt-4 text-uppercase">
                     Category - {{ $categoryName }}
                 </div>
 
-                {{-- List Produk dalam kategori tersebut --}}
-                @foreach($products as $product)
-                <div class="row mb-3">
-                    <div class="col-md-4 stat-label fw-normal">{{ $product['product_name'] }}</div>
-                    <div class="col-md-2 stat-value text-center">{{ $product['total_qty'] }}</div>
-                    <div class="col-md-6 stat-value text-end">Rp. {{ number_format($product['total_price'], 0, ',', '.') }}</div>
+                {{-- List Produk --}}
+                <div class="mb-2">
+                    @foreach($products as $product)
+                        <div class="report-row">
+                            {{-- Product Name (Font Normal agar beda dengan Label Utama) --}}
+                            <div class="report-item-label" style="font-weight: 500; color: #374151;">
+                                {{ $product['product_name'] }}
+                            </div>
+                            
+                            {{-- Qty --}}
+                            <div class="report-item-count">
+                                {{ $product['total_qty'] }}
+                            </div>
+                            
+                            {{-- Total Price --}}
+                            <div class="report-item-amount">
+                                Rp. {{ number_format($product['total_price'], 0, ',', '.') }}
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                @endforeach
 
             @empty
-                <div class="text-center text-muted py-5">
+                <div class="text-center text-muted py-5 fst-italic">
                     No product sales found in this period.
                 </div>
             @endforelse
