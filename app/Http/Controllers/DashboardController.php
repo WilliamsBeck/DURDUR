@@ -51,7 +51,7 @@ class DashboardController extends Controller
             
         // 4. PRODUK DENGAN STOK RENDAH
         // Ambang Batas Stok Rendah
-        $low_stock_threshold = 10; 
+        $low_stock_threshold = 5; 
 
         $produkRendahStok = Product::where('stock', '<', $low_stock_threshold)
             ->orderBy('stock', 'asc')
