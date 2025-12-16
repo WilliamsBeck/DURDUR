@@ -54,10 +54,10 @@
                 <thead>
                     <tr>
                         <th class="text-center" width="10%">Image</th>
-                        <th width="25%">Title</th>
-                        <th width="15%">Category</th>
-                        <th width="15%">Supplier</th>
-                        <th width="15%" class="text-end">Price</th>
+                        <th width="15%" class="text-center">Title</th>
+                        <th width="15%" class="text-center">Category</th>
+                        <th width="15%" class="text-center">Supplier</th>
+                        <th width="15%" class="text-center">Price</th>
                         <th width="10%" class="text-center">Stock</th>
                         <th width="10%" class="text-center">Actions</th>
                     </tr>
@@ -81,16 +81,16 @@
                         </td>
 
                         {{-- Title --}}
-                        <td class="fw-bold-dark">{{ $product->title }}</td>
+                        <td class="text-center fw-bold-dark">{{ $product->title }}</td>
                         
                         {{-- Category --}}
-                        <td>{{ $product->category_product->product_category_name ?? '-' }}</td>
+                        <td class="text-center">{{ $product->category_product->product_category_name ?? '-' }}</td>
 
                         {{-- Supplier --}}
-                        <td>{{ $product->supplier->supplier_name ?? '-' }}</td>
+                        <td class="text-center">{{ $product->supplier->supplier_name ?? '-' }}</td>
 
                         {{-- Price (Right Aligned) --}}
-                        <td class="text-end fw-bold-dark">
+                        <td class="text-center fw-bold-dark">
                             Rp {{ number_format($product->price, 0, ',', '.') }}
                         </td>
                         

@@ -328,3 +328,142 @@ body {
 .btn-purple-solid {
     background-color: #a855f7; /* Ungu Solid */
 }
+
+/* --- REPORT PAGE STYLING --- */
+
+/* 1. Filter Section (Date & Download) */
+.report-filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Date Input Styling (Mirip Pill Abu-abu) */
+.report-date-input {
+    background-color: #e5e7eb; /* Abu-abu agak gelap */
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    color: #374151;
+    outline: none;
+    font-size: 0.9rem;
+    min-width: 150px;
+    text-align: center;
+}
+
+/* Label 'Date' dan Separator '-' */
+.report-label {
+    font-weight: 700;
+    margin-right: 1rem;
+    font-size: 0.95rem;
+}
+.report-separator {
+    margin: 0 1rem;
+    font-weight: 700;
+}
+
+/* 2. Download Button (Ungu Solid) */
+.btn-download-pdf {
+    background-color: #a855f7; /* Ungu */
+    color: white;
+    font-weight: 600;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px; /* Radius kotak sedikit rounded */
+    border: none;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-download-pdf:hover {
+    background-color: #9333ea;
+    color: white;
+}
+
+/* 3. Tab Navigation (Sales, Purchase, etc) */
+.report-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.report-tab-item {
+    background-color: #f3f4f6; /* Abu-abu default */
+    color: #374151;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+    border: none;
+    font-size: 0.95rem;
+}
+
+/* State Active (Lime Green) */
+.report-tab-item.active {
+    background-color: #d2f865; /* Lime */
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(210, 248, 101, 0.3);
+}
+
+.report-tab-item:hover:not(.active) {
+    background-color: #e5e7eb;
+}
+
+/* 4. Data Rows Layout */
+.report-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    font-size: 0.95rem;
+}
+
+/* Label Kiri (Bold Hitam) */
+.report-item-label {
+    font-weight: 700;
+    color: #111;
+    width: 40%; /* Lebar kolom label */
+}
+
+/* Value Tengah (Angka Transaksi) */
+.report-item-count {
+    font-weight: 600;
+    color: #374151;
+    width: 20%;
+    text-align: left; /* Rata kiri sesuai gambar */
+}
+
+/* Value Kanan (Nominal Rupiah) */
+.report-item-amount {
+    font-weight: 700;
+    color: #111;
+    width: 40%;
+    text-align: left; /* Rata kiri sesuai gambar, atau ubah 'right' jika ingin kanan */
+}
+
+/* 5. Divider Line */
+.report-divider {
+    border-bottom: 1px solid #e5e7eb;
+    margin: 2rem 0;
+    width: 100%;
+}
+
+/* 6. Product Sales Specifics (Tabel Header Custom) */
+.report-table-header {
+    display: flex;
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #6b7280;
+    font-size: 0.9rem;
+}

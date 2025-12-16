@@ -51,11 +51,6 @@
                 <a href="{{ route('stock-adjustments.create') }}" class="add-btn text-decoration-none">
                     <i class="fas fa-boxes me-2"></i> Stock Adjustment
                 </a>
-
-                {{-- Download Button (Ungu Solid) --}}
-                <button type="button" class="btn-download-pdf">
-                    <i class="fas fa-file-pdf me-2"></i> Download PDF
-                </button>
             </div>
         </div>
 

@@ -47,11 +47,6 @@
                        class="report-date-input" 
                        onchange="this.form.submit()">
             </div>
-            
-            {{-- Download Button --}}
-            <button type="button" class="btn-download-pdf">
-                Download PDF
-            </button>
         </form>
 
         {{-- 3. CONTENT DATA --}}

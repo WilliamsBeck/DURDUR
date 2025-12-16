@@ -124,38 +124,40 @@ class ReportController extends Controller
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
 
-        // 1. Ambil semua detail transaksi yang statusnya 'done' dalam range tanggal
-        // Kita asumsikan ada model SalesTransactionDetail. 
-        // Jika belum ada modelnya, kita bisa query via SalesTransaction.
-        
+        // 1. Ambil data
         $soldItems = SalesTransactionDetail::whereHas('transaction', function($q) use ($startDate, $endDate) {
                 $q->whereDate('transaction_date', '>=', $startDate)
                   ->whereDate('transaction_date', '<=', $endDate)
                   ->where('status', 'done');
             })
-            ->with(['product.category_product']) // Load relasi produk & kategori
+            // Gunakan withTrashed() jika ingin memuat produk yang soft-deleted
+            ->with(['product' => function($q) {
+                $q->withTrashed(); 
+            }, 'product.category_product'])
             ->get();
 
-        // 2. Hitung Total Statistik (Bagian Atas)
+        // 2. Hitung Total Statistik
         $totalProductQuantity = $soldItems->sum('quantity');
         $totalProductSales = $soldItems->sum('subtotal');
 
-        // 3. Grouping Data Sesuai Desain (Category -> Product)
-        // Struktur: Category Name => [ List Produk yang sudah di-sum qty & totalnya ]
+        // 3. Grouping Data (DIPERBAIKI AGAR TIDAK ERROR JIKA PRODUK NULL)
         $reportData = $soldItems->groupBy(function ($item) {
-            // Group Level 1: Nama Kategori
-            return $item->product->category_product->product_category_name ?? 'Uncategorized';
+            // Gunakan tanda tanya (?) agar tidak error jika product sudah dihapus
+            return $item->product?->category_product?->product_category_name ?? 'Uncategorized';
         })->map(function ($itemsByCategory) {
-            // Di dalam kategori, kita group lagi berdasarkan Produk ID agar tidak duplikat baris
             return $itemsByCategory->groupBy('product_id')->map(function ($itemsByProduct) {
                 $firstItem = $itemsByProduct->first();
+                
+                // FIX ERROR: Cek apakah product ada, jika null beri teks default
+                $productName = $firstItem->product?->title ?? 'Produk Terhapus (ID: ' . $firstItem->product_id . ')';
+
                 return [
-                    'product_name' => $firstItem->product->title,
-                    'total_qty' => $itemsByProduct->sum('quantity'),
-                    'total_price' => $itemsByProduct->sum('subtotal')
+                    'product_name' => $productName,
+                    'total_qty'    => $itemsByProduct->sum('quantity'),
+                    'total_price'  => $itemsByProduct->sum('subtotal')
                 ];
             });
-        })->sortKeys(); // Urutkan kategori sesuai abjad
+        })->sortKeys();
 
         return view('reports.product_sales', compact(
             'startDate', 

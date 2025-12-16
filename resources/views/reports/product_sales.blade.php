@@ -45,11 +45,6 @@
                        class="report-date-input" 
                        onchange="this.form.submit()">
             </div>
-            
-            {{-- Download Button --}}
-            <button type="button" class="btn-download-pdf">
-                Download PDF
-            </button>
         </form>
 
         {{-- 3. CONTENT DATA --}}
@@ -82,18 +77,21 @@
                 <div class="mb-2">
                     @foreach($products as $product)
                         <div class="report-row">
-                            {{-- Product Name (Font Normal agar beda dengan Label Utama) --}}
+                            {{-- Product Name --}}
                             <div class="report-item-label" style="font-weight: 500; color: #374151;">
+                                {{-- Pastikan key array sesuai controller: product_name --}}
                                 {{ $product['product_name'] }}
                             </div>
                             
                             {{-- Qty --}}
                             <div class="report-item-count">
+                                {{-- Pastikan key array sesuai controller: total_qty --}}
                                 {{ $product['total_qty'] }}
                             </div>
                             
                             {{-- Total Price --}}
                             <div class="report-item-amount">
+                                {{-- Pastikan key array sesuai controller: total_price --}}
                                 Rp. {{ number_format($product['total_price'], 0, ',', '.') }}
                             </div>
                         </div>
