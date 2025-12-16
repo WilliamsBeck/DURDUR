@@ -76,12 +76,16 @@
 
                         {{-- Status (Icons) --}}
                         <td>
-                            @if($purchase->status === 'void')
-                                <div class="status-icon-void"><i class="fas fa-times-circle"></i></div>
-                            @elseif($purchase->status === 'done')
-                                <div class="status-icon-check"><i class="fas fa-check-circle"></i></div>
+                            @if($purchase->status == 'void')
+                                {{-- Badge Merah untuk Void --}}
+                                <span class="badge-status badge-void">
+                                    <i class="fas fa-times-circle"></i> VOID
+                                </span>
                             @else
-                                <div class="status-icon-pending"><i class="fas fa-exclamation-circle"></i></div>
+                                {{-- Badge Hijau untuk Sukses/Check --}}
+                                <span class="badge-status badge-check">
+                                    <i class="fas fa-check-circle"></i> SUCCESS
+                                </span>
                             @endif
                         </td>
 

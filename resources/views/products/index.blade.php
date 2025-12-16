@@ -94,15 +94,17 @@
                             Rp {{ number_format($product->price, 0, ',', '.') }}
                         </td>
                         
-                        {{-- Stock (Centered) --}}
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                             @if($product->stock <= 5)
-                                <span class="badge bg-danger rounded-pill px-3">{{ $product->stock }}</span>
+                                <span class="badge bg-danger rounded-pill px-4 py-2 fs-6">
+                                    {{ $product->stock }}
+                                </span>
                             @else
-                                <span class="badge bg-success rounded-pill px-3">{{ $product->stock }}</span>
+                                <span class="badge bg-success rounded-pill px-4 py-2 fs-6">
+                                    {{ $product->stock }}
+                                </span>
                             @endif
                         </td>
-                        
                         {{-- Actions --}}
                         <td>
                             <div class="action-icons">
@@ -195,7 +197,7 @@ deleteButtons.forEach(button => {
             confirmButtonText: 'Yes, Archive',
             cancelButtonText: 'Cancel',
             
-            // Gunakan Class CSS dari transaction-form.css
+          
             customClass: {
                 popup: 'swal-archive-popup',
                 confirmButton: 'btn-swal-confirm-red',
@@ -203,7 +205,7 @@ deleteButtons.forEach(button => {
                 actions: 'swal2-actions'
             },
             buttonsStyling: false,
-            reverseButtons: true, // Cancel kiri, Archive kanan
+            reverseButtons: true, 
             focusCancel: true
         }).then((result) => {
             if (result.isConfirmed) {
