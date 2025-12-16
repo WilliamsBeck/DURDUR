@@ -3,76 +3,99 @@
 @section('title', 'Stock Adjustment')
 
 @section('content')
-{{-- Container Putih Utama (Sesuai CSS Anda) --}}
-<div class="main-content-card">
-    
-    <div class="top-header">
+
+<div class="container-fluid">
+    {{-- Main Content Card (.main-content-card dari transaction.css) --}}
+    <div class="main-content-card">
+        
+        {{-- 1. TITLE --}}
         <h3>Stock Adjustment</h3>
-    </div>
 
-    {{-- Controls: Tombol Add (Hitam) & Search --}}
-    <div class="table-controls">
-        {{-- Tombol Add Hitam (Sesuai Figma & CSS .add-btn) --}}
-        <a href="{{ route('stock-adjustments.create') }}" class="add-btn">
-            <i class="fas fa-plus"></i> Add Adjustment
-        </a>
+        {{-- 2. CONTROLS --}}
+        <div class="table-controls">
+            {{-- Tombol Add (Hitam Pill) --}}
+            <a href="{{ route('stock-adjustments.create') }}" class="add-btn">
+                <i class="fas fa-plus"></i> Add Adjustment
+            </a>
 
-        {{-- Search Bar (Sesuai Figma & CSS .search-bar-new) --}}
-        <form action="{{ route('stock-adjustments.index') }}" method="GET">
-            <div class="search-bar-new">
-                <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Search Adjustment" value="{{ request('search') }}">
-            </div>
-        </form>
-    </div>
-
-    @if(session('success'))
-        <div class="alert alert-success mb-3" role="alert">
-            {{ session('success') }}
+            {{-- Search Bar (Abu-abu Pill) --}}
+            <form action="{{ route('stock-adjustments.index') }}" method="GET" class="m-0">
+                <div class="search-bar-new">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Search Adjustment..." value="{{ request('search') }}">
+                    @if(request('search'))
+                        <a href="{{ route('stock-adjustments.index') }}" class="text-muted ms-2" title="Clear Search">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
-    @endif
 
-    {{-- Tabel Data --}}
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    {{-- Header Sesuai Figma --}}
-                    <th width="10%">ID</th>
-                    <th width="30%">Date</th>
-                    <th width="40%">Adjusted By</th>
-                    <th width="20%" class="text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($adjustments as $adj)
-                <tr>
-                    <td class="fw-bold">#{{ $adj->id }}</td>
-                    {{-- Fix Error Format Date Null --}}
-                    <td>{{ $adj->transaction_date ? $adj->transaction_date->format('d, F Y') : '-' }}</td>
-                    <td>{{ $adj->user->name ?? 'Unknown' }}</td>
-                    <td>
-                        <div class="action-icons justify-content-center">
-                            {{-- Tombol Mata Ungu (Inline Style agar sesuai Figma persis) --}}
-                            <a href="{{ route('stock-adjustments.show', $adj->id) }}" 
-                               style="background-color: #CEBEFF; color: black; border: none;">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="4" class="text-center py-4 text-muted">No adjustment data found.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+        {{-- Flash Messages --}}
+        @if(session('success'))
+            <div class="alert alert-success border-0 bg-success-subtle rounded-3 mb-4">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-    {{-- Pagination --}}
-    <div class="d-flex justify-content-center mt-4">
-        {{ $adjustments->links() }}
+        {{-- 3. TABLE --}}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center" width="10%">ID</th>
+                        <th width="30%">Date</th>
+                        <th width="40%">Adjusted By</th>
+                        <th width="20%" class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($adjustments as $adj)
+                    <tr>
+                        {{-- ID --}}
+                        <td class="text-center text-muted">#{{ $adj->id }}</td>
+                        
+                        {{-- Date --}}
+                        <td>
+                            {{ $adj->transaction_date ? $adj->transaction_date->format('d M Y') : '-' }}
+                            <small class="d-block text-muted">
+                                {{ $adj->transaction_date ? $adj->transaction_date->format('H:i') : '' }}
+                            </small>
+                        </td>
+                        
+                        {{-- User --}}
+                        <td class="fw-bold-dark">{{ $adj->user->name ?? 'Unknown' }}</td>
+                        
+                        {{-- Action --}}
+                        <td>
+                            <div class="action-icons">
+                                {{-- Tombol Detail (Ungu - Konsisten dengan index lain) --}}
+                                <a href="{{ route('stock-adjustments.show', $adj->id) }}" 
+                                   class="btn-circle btn-purple-solid" 
+                                   title="View Detail">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="fas fa-clipboard-list fa-3x mb-3 text-light"></i><br>
+                            No adjustment data found.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Pagination --}}
+        <div class="d-flex justify-content-end mt-4">
+            {{ $adjustments->withQueryString()->links() }}
+        </div>
     </div>
 </div>
 @endsection

@@ -1,93 +1,203 @@
 /* public/css/transaction-form.css */
+
+/* --- 1. FORM CONTAINER (CARD) --- */
 .form-card {
     background-color: #fff;
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
-}
-
-.form-card h3 {
-    font-weight: 600;
+    padding: 2.5rem; /* Padding lebih lega */
+    border-radius: 30px; /* Radius besar sesuai desain Figma */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    border: none;
     margin-bottom: 2rem;
 }
 
-.form-label {
-    font-weight: 500;
-    color: #555;
-    margin-bottom: 0.5rem;
+/* Judul Halaman (Create New Transaction / Transaction Detail) */
+.form-card h3, .page-title-form {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #000;
+    margin-bottom: 2rem;
+    letter-spacing: -0.5px;
 }
 
+/* --- 2. INPUT FIELDS & LABELS --- */
+.form-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #111;
+    margin-bottom: 0.6rem;
+}
+
+/* Input Style (Abu-abu muda, Rounded) */
 .form-control, .form-select {
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    padding: 0.75rem 1rem;
-    background-color: #f8f9fa;
+    border-radius: 12px; /* Sudut rounded */
+    border: 1px solid #f1f1f1;
+    padding: 0.8rem 1.2rem;
+    background-color: #f8f9fa; /* Background abu-abu muda */
+    font-size: 0.95rem;
+    color: #333;
+    transition: all 0.2s;
 }
 
 .form-control:focus, .form-select:focus {
     background-color: #fff;
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: #000; /* Fokus border hitam */
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.form-control[readonly] {
-    background-color: #e9ecef;
-    opacity: 1;
+/* Readonly Input (Untuk Show/Detail) */
+.form-control[readonly], .form-control[disabled] {
+    background-color: #f3f4f6;
+    border-color: transparent;
+    color: #555;
+    font-weight: 600; /* Teks lebih tebal untuk data readonly */
 }
 
-/* Bagian Produk */
-#product-rows-header, .product-row {
+/* --- 3. PRODUCT SECTION (DYNAMIC ROWS) --- */
+.product-section-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee; /* Garis pemisah */
+}
+
+/* Grid Header (Product, Price, Qty, Subtotal) */
+#product-rows-header {
     display: grid;
-    grid-template-columns: 4fr 2fr 2fr 2fr 1fr; /* Pembagian kolom */
+    grid-template-columns: 4fr 2fr 2fr 2fr 0.5fr; /* Sesuaikan grid kolom */
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #666;
+    padding: 0 0.5rem;
+}
+
+/* Baris Produk Input */
+.product-row {
+    display: grid;
+    grid-template-columns: 4fr 2fr 2fr 2fr 0.5fr;
     gap: 1rem;
     align-items: center;
     margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: #fff;
+    border-radius: 12px;
 }
 
-#product-rows-header {
-    font-weight: 600;
-    color: #888;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #e9ecef;
-    padding-bottom: 0.5rem;
+/* Penyesuaian input di dalam row agar tidak terlalu tinggi */
+.product-row .form-control, 
+.product-row .form-select {
+    padding: 0.6rem 1rem;
 }
 
-.product-row .form-control, .product-row .form-select {
-    padding: 0.5rem 0.75rem; /* Padding lebih kecil untuk input di baris produk */
-}
-
+/* Teks Statis (Rp. 0) di form create */
 .unit-price-text, .subtotal-text {
-    font-weight: 500;
+    font-weight: 700;
+    color: #000;
+    font-size: 0.95rem;
 }
 
-.btn-remove-product {
-    background: #f8d7da;
-    color: #842029;
+/* --- 4. BUTTONS (FIGMA STYLE) --- */
+
+/* Tombol Add Product (Hitam Pill) */
+.btn-add-product {
+    background-color: #000;
+    color: #fff;
+    border-radius: 50px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+.btn-add-product:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Tombol Remove Item (Icon X Merah - Outline) */
+.btn-remove-product {
+    background: transparent;
+    color: #dc3545;
+    border: 1px solid #dc3545;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-weight: bold;
+    width: 30px;
+    height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: 0.3s;
+    cursor: pointer;
 }
 .btn-remove-product:hover {
-    background: #c94848;
+    background: #dc3545;
+    color: white;
 }
 
-/* Tombol Aksi */
+/* Action Buttons Container (Bawah Kanan) */
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
     align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f0f0f0;
 }
 
+/* Tombol Save (Lime Pill) */
+.btn-save {
+    background-color: #d2f865; /* Warna Lime */
+    color: #000;
+    font-weight: 700;
+    padding: 0.8rem 2.5rem;
+    border-radius: 50px;
+    border: none;
+    transition: 0.3s;
+}
+.btn-save:hover {
+    background-color: #bded40;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(210, 248, 101, 0.4);
+}
+
+/* Tombol Cancel / Back (Abu-abu Pill) */
+.btn-cancel, .btn-back {
+    background-color: #e5e5e5; /* Abu-abu */
+    color: #333;
+    font-weight: 600;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    border: none;
+    transition: 0.3s;
+}
+.btn-cancel:hover, .btn-back:hover {
+    background-color: #d1d1d1;
+    color: #000;
+}
+
+/* Grand Total Display */
 #grand-total-display {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #000;
+    margin-right: auto; /* Dorong ke kiri */
+}
+
+
+/* --- 5. DETAIL / SHOW PAGE SPECIFIC --- */
+
+/* Header tabel detail */
+.table-detail-header {
+    background-color: #f8f9fa;
+    color: #666;
     font-weight: 600;
 }
 
@@ -95,8 +205,10 @@
     background-color: #759438;
     color: white;
     font-weight: 500;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    color: #333;
+}
+.detail-item-row:last-child {
+    border-bottom: none;
 }
 .btn-save:hover {
     background-color: #60792d;
@@ -107,9 +219,254 @@
     background-color: #e9ecef;
     color: #333;
     font-weight: 500;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
 }
-.btn-cancel:hover {
-    background-color: #d8dbe0;
+.detail-grand-total span:last-child {
+    font-weight: 800;
+    color: #000;
+    font-size: 1.3rem;
 }
+
+/* Header bagian atas detail */
+.detail-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+.invoice-number {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+/* Container Popup Bulat */
+    .swal-void-popup {
+        border-radius: 30px !important;
+        padding: 2rem !important;
+        width: 450px !important;
+    }
+
+    /* Ikon Custom (Lingkaran Ungu Pucat) */
+    .void-icon-bg {
+        width: 90px;
+        height: 90px;
+        background-color: #a69dee33; /* Ungu transparan (Opacity 20%) */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+    }
+    
+    /* Tanda Seru (!) Ungu Solid */
+    .void-icon-text {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #a69dee; /* Ungu Solid sesuai tema dashboard */
+        line-height: 1;
+    }
+
+    /* Text Konfirmasi */
+    .void-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #000;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Tombol Cancel (Abu-abu) */
+    .btn-swal-cancel {
+        background-color: #e0e0e0 !important;
+        color: #000 !important;
+        font-weight: 600 !important;
+        padding: 12px 30px !important;
+        border-radius: 12px !important;
+        border: none !important;
+        margin-right: 10px !important;
+        font-size: 1rem !important;
+    }
+    .btn-swal-cancel:hover {
+        background-color: #d6d6d6 !important;
+    }
+
+    /* Tombol Yes, Void (Ungu) */
+    .btn-swal-confirm {
+        background-color: #a69dee !important; /* Warna Ungu Dashboard */
+        color: #000 !important;
+        font-weight: 600 !important;
+        padding: 12px 30px !important;
+        border-radius: 12px !important;
+        border: none !important;
+        font-size: 1rem !important;
+        box-shadow: none !important;
+    }
+    .btn-swal-confirm:hover {
+        background-color: #928bd8 !important;
+    }
+
+    /* SweetAlert Password Popup Style */
+    .swal-custom-input {
+        background-color: #f8f9fa !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 12px !important;
+        padding: 12px !important;
+        margin-top: 15px !important;
+        text-align: center;
+        width: 80% !important; /* Agar tidak terlalu lebar */
+        font-size: 1.1rem !important;
+    }
+    .swal-custom-input:focus {
+        border-color: #a69dee !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(166, 157, 238, 0.2) !important;
+    }
+
+    /* --- SWEETALERT RECEIVE STOCK (LIME THEME) --- */
+
+/* 1. Container Popup (Bisa reuse .swal-void-popup, tapi kita buat spesifik biar aman) */
+.swal-receive-popup {
+    border-radius: 30px !important;
+    padding: 2rem !important;
+    width: 480px !important;
+    text-align: center !important;
+    font-family: 'Poppins', sans-serif !important;
+}
+
+/* 2. Ikon Lingkaran (Lime Muda/Transparan) */
+.receive-icon-bg {
+    width: 90px;
+    height: 90px;
+    background-color: rgba(210, 248, 101, 0.4); /* Lime transparan sesuai gambar */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem auto;
+}
+
+/* 3. Teks Tanda Tanya (?) di dalam lingkaran */
+.receive-icon-text {
+    font-size: 4rem;
+    font-weight: 700;
+    color: #DCED63; /* Lime yang lebih tua/gelap untuk ikon */
+    line-height: 1;
+}
+
+/* 4. Tombol Confirm (Lime Solid) */
+.btn-swal-confirm-lime {
+    background-color: #DCED63 !important; /* Warna Lime Dashboard */
+    color: #000 !important;
+    font-weight: 600 !important;
+    padding: 12px 40px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 10px !important;
+    font-size: 1rem !important;
+}
+
+.btn-swal-confirm-lime:hover {
+    background-color: #DCED63 !important;
+}
+
+/* 5. Tombol Cancel (Abu-abu - Reuse style yang sudah ada atau definisikan ulang) */
+.btn-swal-cancel-grey {
+    background-color: #e0e0e0 !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+    padding: 12px 40px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    margin: 0 10px !important;
+    font-size: 1rem !important;
+}
+
+.btn-swal-cancel-grey:hover {
+    background-color: #d6d6d6 !important;
+}
+
+/* --- SWEETALERT ARCHIVE (RED THEME) --- */
+
+/* 1. Container Popup */
+.swal-archive-popup {
+    border-radius: 30px !important;
+    padding: 2.5rem 2rem !important;
+    width: 480px !important;
+    text-align: center !important;
+    font-family: 'Poppins', sans-serif !important;
+}
+
+/* 2. Ikon Lingkaran (Merah Muda/Transparan) */
+.archive-icon-bg {
+    width: 90px;
+    height: 90px;
+    background-color: rgba(220, 53, 69, 0.15); /* Merah transparan */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem auto;
+}
+
+/* 3. Teks Tanda Seru (!) di dalam lingkaran */
+.archive-icon-text {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #dc3545; /* Merah Solid */
+    line-height: 1;
+}
+
+/* 4. Tombol Confirm (Merah Solid) */
+.btn-swal-confirm-red {
+    background-color: #dc3545 !important; /* Warna Merah */
+    color: #fff !important;
+    font-weight: 600 !important;
+    padding: 12px 40px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 10px !important;
+    font-size: 1rem !important;
+}
+
+.btn-swal-confirm-red:hover {
+    background-color: #bb2d3b !important; /* Merah lebih gelap saat hover */
+}
+
+/* 5. Tombol Cancel (Abu-abu - Reuse jika sudah ada, atau definisikan ulang) */
+.btn-swal-cancel-grey {
+    background-color: #e0e0e0 !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+    padding: 12px 40px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    margin: 0 10px !important;
+    font-size: 1rem !important;
+}
+
+.btn-swal-cancel-grey:hover {
+    background-color: #d6d6d6 !important;
+}
+
+/* --- Tambahan untuk Tombol Restore (Hijau) --- */
+.btn-green-solid {
+    background-color: #10b981; /* Warna Emerald Green Solid */
+    color: #ffffff;
+}
+.btn-green-solid:hover {
+    background-color: #059669; /* Hijau lebih gelap saat hover */
+    color: #ffffff;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #A69DEE; 
+    border-color: #A69DEE;
+}
+
+.pagination .page-item .page-link {
+    color: #555; 
+}
+

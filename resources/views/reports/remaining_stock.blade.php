@@ -1,69 +1,112 @@
 @extends('layouts.app')
 
+@section('title', 'Remaining Stock Report')
+
 @section('content')
 
-<div class="container-fluid py-4">
-    <h2 class="mb-4 fw-bold" style="color: #111827;">Report</h2>
+<div class="container-fluid">
+    
+    {{-- Container Utama (.main-content-card dari transaction.css) --}}
+    <div class="main-content-card">
 
-    <div class="report-card">
+        {{-- HEADER TITLE --}}
+        <h3 class="mb-4 fw-bold">Report</h3>
+
         {{-- 1. TAB MENU --}}
-        <div class="d-flex flex-wrap mb-4">
-
-            <a href="{{ route('reports.sales') }}" class="btn-tab">Sales Report</a>
-            <a href="{{ route('reports.purchasement') }}" class="btn-tab">Purchasement Report</a>
-            <a href="{{ route('reports.product_sales') }}" class="btn-tab">Product Sold Report</a>
-            <a href="{{ route('reports.remaining_stock') }}" class="btn-tab active">Remaining Stock Report</a>
+        <div class="report-tabs">
+            <a href="{{ route('reports.sales') }}" class="report-tab-item">
+                Sales Report
+            </a>
+            <a href="{{ route('reports.purchasement') }}" class="report-tab-item">
+                Purchasement Report
+            </a>
+            <a href="{{ route('reports.product_sales') }}" class="report-tab-item">
+                Product Sold Report
+            </a>
+            <a href="{{ route('reports.remaining_stock') }}" class="report-tab-item active">
+                Remaining Stock Report
+            </a>
         </div>
 
         {{-- 2. ACTION BAR (Search & Buttons) --}}
-        <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap">
-            {{-- Search Form --}}
-            <form action="{{ route('reports.remaining_stock') }}" method="GET">
-                <div class="input-group">
-                    <input type="text" name="search" class="search-bar-new" placeholder="Search Product or category" value="{{ request('search') }}">
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            
+            {{-- Search Bar (Kiri) --}}
+            <form action="{{ route('reports.remaining_stock') }}" method="GET" class="m-0 flex-grow-1" style="max-width: 400px;">
+                <div class="search-bar-new">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Search product or category..." value="{{ request('search') }}">
+                    @if(request('search'))
+                        <a href="{{ route('reports.remaining_stock') }}" class="text-muted ms-2" title="Clear">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
                 </div>
             </form>
 
-            {{-- Buttons --}}
-            <button type="button" class="btn-purple">
-                Download PDF
-            </button>
-        </div>
+            {{-- Buttons Group (Kanan) --}}
+            <div class="d-flex gap-2">
+                {{-- Tombol Stock Adjustment (Hitam Pill) --}}
+                {{-- Pastikan route ini mengarah ke halaman yang benar, misal: stock-adjustments.create --}}
+                <a href="{{ route('stock-adjustments.create') }}" class="add-btn text-decoration-none">
+                    <i class="fas fa-boxes me-2"></i> Stock Adjustment
+                </a>
 
-        {{-- Tombol Stock Adjustment (Posisi di kanan bawah filter, sesuai gambar) --}}
-        <div class="d-flex justify-content-end mb-4">
-            <a href="{{ route('products.index') }}" class="add-btn">Stock Adjustment</a>
+                {{-- Download Button (Ungu Solid) --}}
+                <button type="button" class="btn-download-pdf">
+                    <i class="fas fa-file-pdf me-2"></i> Download PDF
+                </button>
+            </div>
         </div>
 
         {{-- 3. CONTENT DATA --}}
-        <div class="px-2">
+        <div class="px-1">
             
-            {{-- Header Tabel Utama --}}
-            <div class="row fw-bold text-muted border-bottom pb-2 mb-2 d-none d-md-flex">
-                <div class="col-1">No.</div>
-                <div class="col-6">Product Name</div>
-                <div class="col-5">Stock</div>
+            {{-- Header Kolom (Manual styling agar rapi) --}}
+            <div class="d-flex text-muted fw-bold mb-2 px-3 small text-uppercase border-bottom pb-2">
+                <div style="width: 5%;">No.</div>
+                <div style="width: 75%;">Product Name</div>
+                <div style="width: 20%; text-align: right;">Current Stock</div>
             </div>
 
-            {{-- Loop Categories --}}
+            {{-- Loop Data --}}
             @forelse($reportData as $categoryName => $products)
-                {{-- Nama Kategori --}}
-                <div class="category-header">
+                
+                {{-- Category Header --}}
+                <div class="report-table-header mt-3 text-uppercase">
                     Category - {{ $categoryName }}
                 </div>
 
-                {{-- Loop Products dalam Kategori --}}
-                @foreach($products as $index => $product)
-                <div class="row py-2 border-bottom border-light">
-                    <div class="col-1">{{ $loop->iteration }}</div>
-                    <div class="col-6 fw-bold">{{ $product->title }}</div>
-                    <div class="col-5">{{ $product->stock }}</div>
+                {{-- List Products --}}
+                <div class="mb-2">
+                    @foreach($products as $index => $product)
+                        <div class="report-row">
+                            {{-- No --}}
+                            <div style="width: 5%; color: #6b7280; font-weight: 500;">
+                                {{ $loop->iteration }}
+                            </div>
+                            
+                            {{-- Product Name --}}
+                            <div class="report-item-label" style="width: 75%; font-weight: 600; color: #374151;">
+                                {{ $product->title }}
+                            </div>
+                            
+                            {{-- Stock --}}
+                            <div class="report-item-amount" style="width: 20%; text-align: right;">
+                                @if($product->stock <= 5)
+                                    <span class="text-danger fw-bold">{{ $product->stock }}</span> <i class="fas fa-exclamation-circle text-danger small ms-1" title="Low Stock"></i>
+                                @else
+                                    {{ $product->stock }}
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                @endforeach
 
             @empty
-                <div class="text-center text-muted py-5">
-                    No products found.
+                <div class="text-center text-muted py-5 fst-italic">
+                    <i class="fas fa-box-open fa-3x mb-3 text-light"></i><br>
+                    No products found based on your search.
                 </div>
             @endforelse
 

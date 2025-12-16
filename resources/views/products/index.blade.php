@@ -4,6 +4,8 @@
 
 @section('content')
 
+<div class="container-fluid">
+    {{-- Main Content Card (.main-content-card dari CSS global) --}}
     <div class="main-content-card">
         {{-- Pesan Notifikasi Sukses --}}
         @if (session('success'))
@@ -31,8 +33,22 @@
                 <input type="text" id="searchInput" name="search" placeholder="Search products..." class="form-control" value="{{ request('search') }}">
                 <span class="clear-search-btn" id="clearSearchBtn" style="{{ request('search') ? 'display:block;' : 'display:none;' }}">&times;</span>
             </div>
+
+            {{-- Search Bar (Abu-abu Pill .search-bar-new) --}}
+            <form method="GET" action="{{ route('products.index') }}" class="m-0" id="searchForm">
+                <div class="search-bar-new">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" name="search" placeholder="Search products..." value="{{ request('search') }}">
+                    @if(request('search'))
+                        <a href="{{ route('products.index') }}" class="text-muted ms-2" title="Clear Search">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
+        {{-- 3. TABLE --}}
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -111,25 +127,31 @@
             </table>
         </div>
 
-        <div class="d-flex justify-content-center mt-4">
+        {{-- Pagination --}}
+        <div class="d-flex justify-content-end mt-4">
             {{ $products->appends(request()->query())->links() }}
         </div>
-    </div>
 
+    </div>
+</div>
 @endsection
 
 @push('scripts')
     {{-- SweetAlert dan Script Search (Tetap sama) --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
-        // SweetAlert untuk pesan sukses
+        // SweetAlert Success
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
-                title: 'SUCCESS',
+                title: 'Success!',
                 text: '{{ session('success') }}',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 2000,
+                customClass: {
+                    popup: 'rounded-4 shadow-lg'
+                }
             });
         @endif
 
@@ -158,7 +180,7 @@
             });
         });
 
-        // Script untuk Search Bar
+        // Simple Search Submit on Enter (Optional optimization)
         const searchInput = document.getElementById('searchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
 

@@ -34,6 +34,12 @@
             <div class="alert alert-success border-0 bg-success-subtle rounded-3 mb-4">
                 <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
             </div>
+        </div>
+
+        @if(session('success'))
+            <div class="alert alert-success border-0 bg-success-subtle rounded-3 mb-4">
+                <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
+            </div>
         @endif
 
         {{-- 3. TABLE --}}
@@ -101,5 +107,4 @@
             {{ $transactions->withQueryString()->links() }}
         </div>
     </div>
-</div>
 @endsection

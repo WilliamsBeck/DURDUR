@@ -1,11 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
+{{-- Load CSS External Form --}}
+<link rel="stylesheet" href="{{ asset('css/transaction-form.css') }}">
 
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
+            
+            {{-- Container Utama (.form-card) --}}
             <div class="form-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                
+                {{-- Header: Title & Back Button --}}
+                <div class="d-flex justify-content-between align-items-center mb-5">
                     <h3>Product Detail</h3>
                     </div>
                 

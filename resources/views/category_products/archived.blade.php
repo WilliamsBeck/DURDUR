@@ -1,118 +1,130 @@
 @extends('layouts.app')
 
-@section('title', 'Category Archives')
+@section('title', 'Archived Categories')
 
 @section('content')
 
+<div class="container-fluid">
+    {{-- Main Content Card (.main-content-card dari transaction.css) --}}
     <div class="main-content-card">
+
+        {{-- 1. TITLE --}}
+        <h3>Archived Categories</h3>
+
+        {{-- 2. CONTROLS --}}
         <div class="table-controls">
-            <h3 class="mb-0">📦 Daftar Kategori yang Diarsip</h3>
-        </div>
-        
-        {{-- TOMBOL KEMBALI DAN SEARCH BAR (Sesuaikan design dan class Anda) --}}
-        <div class="table-controls" style="justify-content: flex-start; margin-bottom: 20px;">
-            <a href="{{ route('category_products.index') }}" class="btn btn-primary" style="background-color: #333; color: white;">
-                <i class="fa-solid fa-arrow-left"></i>
-                Kembali ke Daftar Aktif
+            {{-- Tombol Back to List (Rounded Pill) --}}
+            <a href="{{ route('category_products.index') }}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold">
+                <i class="fas fa-arrow-left me-2"></i> Back to Active List
             </a>
-            
-            <div class="search-bar-new" style="margin-left: auto;">
-                <i class="fa-solid fa-search"></i>
-                <input type="text" id="searchInput" name="search" placeholder="Search archived categories..." class="form-control" value="{{ request('search') }}">
-                <span class="clear-search-btn" id="clearSearchBtn" style="{{ request('search') ? 'display:block;' : 'display:none;' }}">&times;</span>
-            </div>
+
+            {{-- Search Bar (Optional) --}}
+            {{-- <div class="search-bar-new"> ... </div> --}}
         </div>
 
-        @if(session('success'))
-        {{-- Pesan sukses ini akan ditangkap oleh SweetAlert di script bawah --}}
-        <div class="alert alert-success mt-3" style="display: none;">{{ session('success') }}</div>
-        @endif
-
+        {{-- 3. TABLE --}}
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th>Category Name</th>
-                        <th style="width: 150px;">Dibuat Pada</th>
-                        <th style="width: 150px;">Dihapus Pada</th>
-                        <th class="text-center" style="width: 120px;">Actions</th>
+                        <th class="text-center" width="10%">ID</th>
+                        <th width="40%">Category Name</th>
+                        <th width="20%">Deleted At</th>
+                        <th class="text-center" width="20%">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($category_products as $category)
-                        <tr>
-                            <td><strong>#{{ $category->id }}</strong></td>
-                            <td>{{ $category->product_category_name }}</td>
-                            <td>{{ $category->created_at ? $category->created_at->format('d F Y') : '-' }}</td>
-                            <td>{{ $category->deleted_at ? $category->deleted_at->format('d F Y H:i:s') : 'N/A' }}</td>
-                            <td class="text-center">
-                                <div class="action-icons">
-                                    {{-- FORM RESTORE --}}
-                                    <form class="d-inline" action="{{ route('category_products.restore', $category->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        {{-- Gunakan class btn-restore untuk ditangkap oleh SweetAlert --}}
-                                        <button type="submit" class="btn-restore" title="Pulihkan Kategori" data-name="{{ $category->product_category_name }}" data-action="restore" style="background: none; border: none; padding: 0;">
-                                            <i class="fa-solid fa-trash-arrow-up" style="color: #28a745;"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center">
-                                <div class="alert alert-secondary mt-3">
-                                    Tidak ada data kategori yang diarsip.
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
+                @forelse ($category_products as $category)
+                    <tr>
+                        {{-- ID --}}
+                        <td class="text-center text-muted">#{{ $category->id }}</td>
+
+                        {{-- Name --}}
+                        <td class="fw-bold-dark text-muted">{{ $category->product_category_name }}</td>
+                        
+                        {{-- Deleted Date --}}
+                        <td class="text-muted">
+                            {{ $category->deleted_at ? $category->deleted_at->format('d M Y') : '-' }}
+                        </td>
+
+                        {{-- Action (Restore) --}}
+                        <td>
+                            <div class="action-icons">
+                                <form id="restore-form-{{ $category->id }}" 
+                                      action="{{ route('category_products.restore', $category->id) }}" 
+                                      method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    
+                                    {{-- Tombol Restore (Hijau) --}}
+                                    <button type="button" 
+                                            class="btn-circle btn-green-solid btn-restore" 
+                                            title="Restore Category"
+                                            data-category-id="{{ $category->id }}"
+                                            data-category-name="{{ $category->product_category_name }}">
+                                        <i class="fas fa-undo text-white"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="fas fa-archive fa-3x mb-3 text-light"></i><br>
+                            No archived categories found.
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
 
-        {{-- BAGIAN PAGINATION (PENTING AGAR appends() BERFUNGSI) --}}
-        <div class="d-flex justify-content-center mt-4">
+        {{-- Pagination --}}
+        <div class="d-flex justify-content-end mt-4">
             {{ $category_products->appends(request()->query())->links() }}
         </div>
-    </div>
 
+    </div>
+</div>
 @endsection
 
 @push('scripts')
-    {{-- PASTIKAN INI TIDAK MENGINCLUDE FILE INDEX.BLADE.PHP --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // SweetAlert untuk pesan sukses
-        @if(session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'SUCCESS',
-                text: '{{ session('success') }}',
-                showConfirmButton: false,
-                timer: 2000
-            });
-        @endif
+{{-- Script SweetAlert2 untuk Konfirmasi Restore --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-restore').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault(); 
 
-        // SweetAlert untuk konfirmasi restore
-        const restoreButtons = document.querySelectorAll('.btn-restore');
-        restoreButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-                const dataName = this.getAttribute('data-name');
-                const form = this.closest('form');
-                
+                const categoryId = this.getAttribute('data-category-id');
+                const categoryName = this.getAttribute('data-category-name');
+                const form = document.getElementById(`restore-form-${categoryId}`);
+
                 Swal.fire({
-                    title: `Pulihkan kategori "${dataName}"?`,
-                    text: "Kategori akan dikembalikan ke daftar aktif.",
-                    icon: 'warning',
+                    // HTML Custom Icon Hijau (Reuse dari Product Restore)
+                    html: `
+                        <div style="width: 90px; height: 90px; background-color: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <span style="font-size: 3.5rem; font-weight: 700; color: #10b981; line-height: 1;"><i class="fas fa-undo"></i></span>
+                        </div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #000; margin-bottom: 0.5rem; line-height: 1.4;">
+                            Restore Category <strong>"${categoryName}"</strong> ?
+                        </div>
+                        <div style="font-size: 0.95rem; color: #666; margin-bottom: 1.5rem;">
+                            It will be moved back to the active list.
+                        </div>
+                    `,
+                    icon: null,
                     showCancelButton: true,
-                    confirmButtonColor: '#28a745', 
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Pulihkan!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Yes, Restore',
+                    cancelButtonText: 'Cancel',
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg p-4',
+                        confirmButton: 'btn btn-success px-4 py-2 mx-1 rounded-pill fw-bold', 
+                        cancelButton: 'btn btn-light px-4 py-2 mx-1 rounded-pill text-muted fw-bold'
+                    },
+                    reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
                         form.submit();
@@ -120,32 +132,6 @@
                 });
             });
         });
-
-        // Script untuk Search Bar (Sama seperti di index.blade.php)
-        const searchInput = document.getElementById('searchInput');
-        const clearSearchBtn = document.getElementById('clearSearchBtn');
-
-        searchInput.addEventListener('keyup', function(event) {
-            clearSearchBtn.style.display = this.value.length > 0 ? 'block' : 'none';
-            if (event.key === 'Enter') {
-                const currentUrl = new URL(window.location.href);
-                currentUrl.searchParams.set('search', this.value);
-                currentUrl.searchParams.delete('page');
-                window.location.href = currentUrl.toString();
-            }
-        });
-        
-        clearSearchBtn.addEventListener('click', function() {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.delete('search');
-            currentUrl.searchParams.delete('page');
-            window.location.href = currentUrl.toString();
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (searchInput.value && searchInput.value.length > 0) {
-                clearSearchBtn.style.display = 'block';
-            }
-        });
-    </script>
+    });
+</script>
 @endpush
