@@ -1,0 +1,39 @@
+[33mfa41b1e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mwilliams[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: pull origin main: Fast-forward
+[33mbdea90e[m HEAD@{1}: pull origin main: Fast-forward
+[33m6550d3e[m[33m ([m[1;31morigin/williams[m[33m)[m HEAD@{2}: commit: Update soft delete, archived, purcahsement, transaction
+[33m8bd6070[m HEAD@{3}: checkout: moving from williams to williams
+[33m8bd6070[m HEAD@{4}: commit: Fitur Penjualan dan Pembelian serta stok
+[33m07691e5[m HEAD@{5}: checkout: moving from williams to williams
+[33m07691e5[m HEAD@{6}: commit: product revisi
+[33maf66fe4[m HEAD@{7}: reset: moving to origin/main
+[33m8d0fb1b[m[33m ([m[1;32mmain[m[33m)[m HEAD@{8}: reset: moving to 8d0fb1b
+[33maf66fe4[m HEAD@{9}: reset: moving to origin/main
+[33m8d0fb1b[m[33m ([m[1;32mmain[m[33m)[m HEAD@{10}: reset: moving to 8d0fb1b
+[33maf66fe4[m HEAD@{11}: reset: moving to HEAD
+[33maf66fe4[m HEAD@{12}: reset: moving to HEAD
+[33maf66fe4[m HEAD@{13}: checkout: moving from williams to williams
+[33maf66fe4[m HEAD@{14}: pull origin main: Fast-forward
+[33m8d0fb1b[m[33m ([m[1;32mmain[m[33m)[m HEAD@{15}: checkout: moving from main to williams
+[33m8d0fb1b[m[33m ([m[1;32mmain[m[33m)[m HEAD@{16}: Branch: renamed refs/heads/main to refs/heads/main
+[33m8d0fb1b[m[33m ([m[1;32mmain[m[33m)[m HEAD@{18}: Branch: renamed refs/heads/Williams to refs/heads/main
+[33m8d0fb1b[m[33m ([m[1;32mmain[m[33m)[m HEAD@{20}: commit: Commint UTS
+[33me06d886[m HEAD@{21}: commit: Dashboard, styling form, category product & supplier
+[33meb790a5[m HEAD@{22}: commit: Design dashboard, koreksi kode, styling button dan card, integrasi menu
+[33m156c62c[m HEAD@{23}: commit: test push
+[33mdb5e385[m HEAD@{24}: checkout: moving from main to Williams
+[33mfa17205[m HEAD@{25}: commit: tes update
+[33m729ac58[m HEAD@{26}: commit: will update
+[33m9d43e88[m HEAD@{27}: Branch: renamed refs/heads/Williams to refs/heads/main
+[33m9d43e88[m HEAD@{29}: commit: update uts williams
+[33m62da6df[m HEAD@{30}: commit: update productcontroller
+[33mdb5e385[m HEAD@{31}: commit: Dashboard, layout blade, supplier
+[33m8ed3ccf[m HEAD@{32}: checkout: moving from main to Williams
+[33m8ed3ccf[m HEAD@{33}: commit: Module Product show, update, delete data to table products
+[33m6624fc7[m HEAD@{34}: commit: Module Product insert data to table products
+[33ma37cc3d[m HEAD@{35}: Branch: renamed refs/heads/main to refs/heads/main
+[33ma37cc3d[m HEAD@{37}: Branch: renamed refs/heads/main to refs/heads/main
+[33ma37cc3d[m HEAD@{39}: Branch: renamed refs/heads/main to refs/heads/main
+[33ma37cc3d[m HEAD@{41}: Branch: renamed refs/heads/main to refs/heads/main
+[33ma37cc3d[m HEAD@{43}: commit: first commit
+[33mebe2ab4[m HEAD@{44}: Branch: renamed refs/heads/master to refs/heads/main
+[33mebe2ab4[m HEAD@{46}: commit (initial): first commit
