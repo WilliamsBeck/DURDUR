@@ -10,7 +10,9 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash; // Penting untuk verifikasi password
+use Illuminate\Support\Facades\Hash; 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class SalesTransactionController extends Controller
 {
@@ -49,68 +51,76 @@ class SalesTransactionController extends Controller
 
     // ================= STORE =================
     public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'payment_id' => 'required|exists:payment_method,id',
-            'customer_email' => 'nullable|email',
-            'products' => 'required|array',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|numeric|min:1',
-        ]);
+{
+    $request->validate([
+        'payment_id' => 'required|exists:payment_method,id',
+        'customer_email' => 'nullable|email',
+        'products' => 'required|array',
+        'products.*.id' => 'required|exists:products,id',
+        'products.*.quantity' => 'required|numeric|min:1',
+    ]);
 
-        try {
-            DB::transaction(function () use ($request) {
+    try {
+        // Simpan hasil transaksi ke variabel $transaction
+        $transaction = DB::transaction(function () use ($request) {
+            $grandTotal = 0;
+            $details = [];
 
-                $grandTotal = 0;
-                $details = [];
+            $products = Product::whereIn(
+                'id',
+                collect($request->products)->pluck('id')
+            )->get()->keyBy('id');
 
-                $products = Product::whereIn(
-                    'id',
-                    collect($request->products)->pluck('id')
-                )->get()->keyBy('id');
-
-                foreach ($request->products as $item) {
-                    $product = $products[$item['id']];
-
-                    if ($product->stock < $item['quantity']) {
-                        throw new \Exception("Stock {$product->title} not enough");
-                    }
-
-                    $subtotal = $product->price * $item['quantity'];
-                    $grandTotal += $subtotal;
-
-                    $details[] = [
-                        'product_id' => $product->id,
-                        'quantity' => $item['quantity'],
-                        'price' => $product->price,
-                        'subtotal' => $subtotal,
-                    ];
-
-                    $product->decrement('stock', $item['quantity']);
+            foreach ($request->products as $item) {
+                $product = $products[$item['id']];
+                if ($product->stock < $item['quantity']) {
+                    throw new \Exception("Stock {$product->title} not enough");
                 }
 
-                $transaction = SalesTransaction::create([
-                    'cashier_id' => Auth::id(),
-                    'payment_id' => $request->payment_id,
-                    'customer_email' => $request->customer_email,
-                    'transaction_date' => now(),
-                    'grand_total' => $grandTotal,
-                    'status' => 'done',
-                ]);
+                $subtotal = $product->price * $item['quantity'];
+                $grandTotal += $subtotal;
 
-                $transaction->details()->createMany($details);
-            });
+                $details[] = [
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $product->price,
+                    'subtotal' => $subtotal,
+                ];
 
-            return redirect()
-                ->route('transactions.index')
-                ->with('success', 'Transaction created successfully');
+                $product->decrement('stock', $item['quantity']);
+            }
 
-        } catch (\Exception $e) {
-            return back()->withErrors([
-                'error' => $e->getMessage()
+            $newTransaction = SalesTransaction::create([
+                'cashier_id' => Auth::id(),
+                'payment_id' => $request->payment_id,
+                'customer_email' => $request->customer_email,
+                'transaction_date' => now(),
+                'grand_total' => $grandTotal,
+                'status' => 'done',
             ]);
+
+            $newTransaction->details()->createMany($details);
+
+            return $newTransaction; // Kembalikan objek transaksi
+        });
+
+        // ================= TAMBAHKAN LOGIKA EMAIL DI SINI =================
+        if ($transaction->customer_email) {
+            // Pastikan fungsi sendEmail($to, $id) ada di bawah controller ini
+            $this->sendEmail($transaction->customer_email, $transaction->id);
         }
+        // =================================================================
+
+        return redirect()
+            ->route('transactions.index')
+            ->with('success', 'Transaction created and email sent successfully');
+
+    } catch (\Exception $e) {
+        return back()->withErrors([
+            'error' => $e->getMessage()
+        ]);
     }
+}
 
     // ================= SHOW (Detail) =================
     public function show($id): View
@@ -198,4 +208,25 @@ class SalesTransactionController extends Controller
             ])->withInput();
         }
     }
+
+   public function sendEmail($to, $id)
+{
+    // Menggunakan Eloquent 'with' agar relasi ke product dan category terambil
+    $transaction = SalesTransaction::with(['details.product.category_product'])
+                    ->find($id);
+
+    if (!$transaction) return;
+
+    // Menyiapkan data untuk Blade
+    $viewData = [
+        'transaction' => $transaction,
+        'details'     => $transaction->details, // Mengambil koleksi detail + product
+        'total_harga' => ['transaksi' => $transaction->grand_total] 
+    ];
+
+    Mail::send('emails.transaksi_detail', $viewData, function ($message) use ($transaction) {
+        $message->to($transaction->customer_email)
+                ->subject("Detail Transaksi #" . $transaction->id . " - RAKESHA Store");
+    });
+}
 }

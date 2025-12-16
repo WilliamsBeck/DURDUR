@@ -30,19 +30,19 @@
         </a>
 
         {{-- 2. SALES --}}
-        <a href="{{ route('transactions.create') }}" class="nav-link @if(request()->routeIs('transactions.create')) active @endif">
+        {{-- <a href="{{ route('transactions.create') }}" class="nav-link @if(request()->routeIs('transactions.create')) active @endif">
             <i class="fas fa-cash-register"></i> Create Sales
-        </a>
+        </a> --}}
         <a href="{{ route('transactions.index') }}" class="nav-link @if(request()->routeIs('transactions.index') || request()->routeIs('transactions.show') || request()->routeIs('transactions.void.form')) active @endif">
-            <i class="fas fa-history"></i> Sales History
+            <i class="fas fa-history"></i> Sales Transaction
         </a>
 
         {{-- 3. PURCHASES --}}
-        <a href="{{ route('purchases.create') }}" class="nav-link @if(request()->routeIs('purchases.create')) active @endif">
+        {{-- <a href="{{ route('purchases.create') }}" class="nav-link @if(request()->routeIs('purchases.create')) active @endif">
             <i class="fas fa-cart-plus"></i> Create Purchase
-        </a>
+        </a> --}}
         <a href="{{ route('purchases.index') }}" class="nav-link @if(request()->routeIs('purchases.index') || request()->routeIs('purchases.show') || request()->routeIs('purchases.void.form')) active @endif">
-            <i class="fas fa-clipboard-list"></i> Purchase History
+            <i class="fas fa-clipboard-list"></i> Purchasement
         </a>
 
         {{-- 4. MASTER DATA --}}

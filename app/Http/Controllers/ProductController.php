@@ -19,7 +19,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): View
     {
-       $query = Product::withTrashed()->with(['category_product', 'supplier']);
+       $query = Product::with(['category_product', 'supplier']);
 
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');

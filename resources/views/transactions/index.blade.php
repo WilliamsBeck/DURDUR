@@ -107,11 +107,15 @@
                         {{-- Status Icons --}}
                         <td>
                             @if($trx->status == 'void')
-                                {{-- Icon Void Merah --}}
-                                <div class="status-icon-void"><i class="fas fa-times-circle"></i></div>
+                                {{-- Badge Merah untuk Void --}}
+                                <span class="badge-status badge-void">
+                                    <i class="fas fa-times-circle"></i> VOID
+                                </span>
                             @else
-                                {{-- Icon Check Lime --}}
-                                <div class="status-icon-check"><i class="fas fa-check-circle"></i></div>
+                                {{-- Badge Hijau untuk Sukses/Check --}}
+                                <span class="badge-status badge-check">
+                                    <i class="fas fa-check-circle"></i> SUCCESS
+                                </span>
                             @endif
                         </td>
 
@@ -121,12 +125,12 @@
                                 
                                 {{-- Tombol Void (Merah) dengan SweetAlert --}}
                                 {{-- PENTING: Panggil fungsi confirmVoid dengan URL route 'transactions.void.form' (GET) --}}
-                                <button type="button" 
+                                {{-- <button type="button" 
                                         class="btn-circle btn-red-solid" 
                                         title="Void"
                                         onclick="confirmVoid('{{ route('transactions.void.form', $trx->id) }}', 'INV-TXN-{{ $trx->id }}')">
                                     <i class="fas fa-times"></i>
-                                </button>
+                                </button> --}}
 
                                 {{-- Tombol Detail (Ungu) --}}
                                 <a href="{{ route('transactions.show', $trx->id) }}" class="btn-circle btn-purple-solid" title="View">

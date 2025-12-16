@@ -468,3 +468,28 @@
 .pagination .page-item .page-link {
     color: #555; 
 }
+
+.badge-status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px; /* Jarak antara ikon dan tulisan */
+    text-transform: uppercase;
+}
+
+/* Style untuk VOID (Merah) */
+.badge-void {
+    background-color: #ffe5e5; /* Merah muda transparan */
+    color: #d9534f;           /* Tulisan merah tua */
+    border: 1px solid #d9534f;
+}
+
+/* Style untuk CHECK (Hijau/Lime) */
+.badge-check {
+    background-color: #f0fff0; /* Hijau muda transparan */
+    color: #28a745;           /* Tulisan hijau tua */
+    border: 1px solid #28a745;
+}
