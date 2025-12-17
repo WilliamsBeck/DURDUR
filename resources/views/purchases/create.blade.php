@@ -172,7 +172,7 @@
             const currentVal = select.value;
             
             // Reset options
-            select.innerHTML = '<option value="" data-cost-price="0">-- Select Product --</option>';
+            select.innerHTML = '<option value="">-- Select Product --</option>';
             
             products.forEach(p => {
                 const opt = document.createElement('option');
@@ -200,56 +200,46 @@
     // --- 3. ROW MANAGEMENT ---
 
     function addRow() {
-        const index = Date.now();
-        const row = document.createElement('div');
-        
-        // GUNAKAN CLASS .product-row DARI CSS
-        row.className = 'product-row'; 
+    const index = Date.now();
+    const row = document.createElement('div');
+    row.className = 'product-row'; 
 
-        // Ambil opsi dari dropdown pertama (jika ada) sebagai referensi
-        const existingSelect = document.querySelector('.product-select');
-        const optionsHTML = existingSelect 
-            ? existingSelect.innerHTML 
-            : '<option value="" data-cost-price="0">-- Select Supplier First --</option>';
+    const existingSelect = document.querySelector('.product-select');
+    const optionsHTML = existingSelect 
+        ? existingSelect.innerHTML 
+        : '<option value="">-- Select Product --</option>'; // Pastikan value kosong
 
-        row.innerHTML = `
-            {{-- Kolom 1: Product (4fr) --}}
-            <div>
-                <select name="products[${index}][id]" class="form-select product-select" required>
-                    ${optionsHTML}
-                </select>
-            </div>
+    row.innerHTML = `
+        <div>
+            <select name="products[${index}][id]" class="form-select product-select" required>
+                ${optionsHTML}
+            </select>
+        </div>
 
-            {{-- Kolom 2: Unit Cost (Inputable di Purchase) (2fr) --}}
-            <div>
-                <input type="number" 
-                       name="products[${index}][price]" 
-                       class="form-control unit-cost-input" 
-                       value="0" min="0" required>
-            </div>
+        <div>
+            <input type="number" 
+                   name="products[${index}][price]" 
+                   class="form-control unit-cost-input" 
+                   value="0" min="0" required> </div>
 
-            {{-- Kolom 3: Quantity (2fr) --}}
-            <div>
-                <input type="number" 
-                       name="products[${index}][quantity]" 
-                       class="form-control qty-input" 
-                       value="1" min="1" required>
-            </div>
+        <div>
+            <input type="number" 
+                   name="products[${index}][quantity]" 
+                   class="form-control qty-input" 
+                   value="1" min="1" required> </div>
 
-            {{-- Kolom 4: Subtotal (2fr) --}}
-            <div class="subtotal-text">Rp 0</div>
+        <div class="subtotal-text">Rp 0</div>
 
-            {{-- Kolom 5: Action (0.5fr) --}}
-            <div class="d-flex justify-content-center">
-                <button type="button" class="btn-remove-product remove-row" title="Remove">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+        <div class="d-flex justify-content-center">
+            <button type="button" class="btn-remove-product remove-row" title="Remove">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
 
-        container.appendChild(row);
-        calculateGrandTotal();
-    }
+    container.appendChild(row);
+    calculateGrandTotal();
+}
 
     // --- 4. EVENT LISTENERS ---
 

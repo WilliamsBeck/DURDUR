@@ -43,9 +43,11 @@
                         </div>
                         
                         {{-- Payment Method --}}
-                         <div class="col-md-6">
+                        <div class="col-md-6">
                             <label class="form-label">Payment Method</label>
-                            <select name="payment_id" class="form-select">
+
+                            <select name="payment_id" class="form-select" required>
+                                
                                 <option value="">-- Select Payment --</option>
                                 @foreach($payments as $payment)
                                     <option value="{{ $payment->id }}" {{ old('payment_id') == $payment->id ? 'selected' : '' }}>
@@ -127,49 +129,56 @@
         totalAmountSpan.innerText = formatRupiah(total);
     }
 
-    function addRow() {
-        const index = Date.now();
-        const row = document.createElement('div');
-        
-        // CLASS .product-row (Penting agar Grid CSS bekerja)
-        row.className = 'product-row'; 
-        row.dataset.price = 0;
+    function addRow(selectedId = '', selectedQty = 1) {
+    const index = Date.now() + Math.floor(Math.random() * 100); // Tambah random agar ID unik jika cepat
+    const row = document.createElement('div');
+    
+    row.className = 'product-row'; 
+    row.dataset.price = 0;
 
-        row.innerHTML = `
-            {{-- Kolom 1: Select Product (4fr) --}}
-            <div>
-                <select name="products[${index}][id]" class="form-select product-select" required>
-                    <option value="">Select Product</option>
-                    @foreach ($products as $product)
-                        <option value="{{ $product->id }}" data-price="{{ $product->price }}" data-stock="{{ $product->stock }}">
-                            {{ $product->title }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+    row.innerHTML = `
+        <div>
+            <select name="products[${index}][id]" class="form-select product-select" required>
+                <option value="">Select Product</option>
+                @foreach ($products as $product)
+                    <option value="{{ $product->id }}" 
+                        data-price="{{ $product->price }}" 
+                        data-stock="{{ $product->stock }}"
+                        ${selectedId == "{{ $product->id }}" ? 'selected' : ''}> {{-- Tambahkan pengecekan selected --}}
+                        {{ $product->title }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="unit-price-text">Rp. 0</div>
+        <div>
+            <input type="number" name="products[${index}][quantity]" 
+                class="form-control qty-input" 
+                placeholder="Qty" 
+                value="${selectedQty}" {{-- Gunakan quantity dari parameter --}}
+                min="1" required>
+        </div>
+        <div class="subtotal-text">Rp. 0</div>
+        <div class="d-flex justify-content-center">
+            <button type="button" class="btn-remove-product remove-row" title="Remove">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
 
-            {{-- Kolom 2: Unit Price (2fr) --}}
-            <div class="unit-price-text">Rp. 0</div>
+    container.appendChild(row);
 
-            {{-- Kolom 3: Quantity (2fr) --}}
-            <div>
-                <input type="number" name="products[${index}][quantity]" class="form-control qty-input" placeholder="Qty" value="1" min="1" required>
-            </div>
-
-            {{-- Kolom 4: Subtotal (2fr) --}}
-            <div class="subtotal-text">Rp. 0</div>
-
-            {{-- Kolom 5: Action (0.5fr) --}}
-            <div class="d-flex justify-content-center">
-                <button type="button" class="btn-remove-product remove-row" title="Remove">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-
-        container.appendChild(row);
+    // Trigger update harga jika ada produk yang terpilih (saat re-populasi)
+    if (selectedId) {
+        const select = row.querySelector('.product-select');
+        const option = select.selectedOptions[0];
+        const price = option.dataset.price || 0;
+        row.dataset.price = price;
+        row.querySelector('.unit-price-text').innerText = formatRupiah(price);
     }
-
+    
+    calculateGrandTotal();
+}
     // Event Delegation
     container.addEventListener('change', function(e) {
         if (e.target.classList.contains('product-select')) {
@@ -203,7 +212,16 @@
 
     addBtn.addEventListener('click', addRow);
 
-    // Tambah 1 baris saat load
-    document.addEventListener('DOMContentLoaded', addRow);
+   document.addEventListener('DOMContentLoaded', function() {
+    @if(old('products'))
+        {{-- Jika ada data lama (error validation), loop dan masukkan kembali --}}
+        @foreach(old('products') as $oldProduct)
+            addRow("{{ $oldProduct['id'] }}", "{{ $oldProduct['quantity'] }}");
+        @endforeach
+    @else
+        {{-- Jika ini halaman baru (bukan balik dari error), tambah 1 baris kosong --}}
+        addRow();
+    @endif
+});
 </script>
 @endpush

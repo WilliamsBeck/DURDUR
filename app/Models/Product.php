@@ -75,7 +75,7 @@ class Product extends Model
         ]);
     }
 
-    // ... metode updateProduct tidak diubah ...
+   
     public static function updateProduct($id, $request, $image = null)
     {
         $product = self::find($id);
@@ -88,7 +88,7 @@ class Product extends Model
                 'description'         => $request['description'],
                 'price'               => $request['price'],   
                 'cost_price'          => $request['cost_price'],
-                // Status tidak diubah
+               
             ];
 
             if (!empty($image)) {
@@ -102,5 +102,5 @@ class Product extends Model
             return "tidak ada data yang diupdate";
         }
     }
-    // ...
+   
 }

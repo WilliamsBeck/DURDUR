@@ -72,7 +72,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            // Upload Gambar (PERBAIKAN UTAMA DI SINI)
+            
             // Simpan ke folder 'images' di dalam disk 'public'
             $image = $request->file('image');
             $image->storeAs('images', $image->hashName(), 'public');
@@ -210,7 +210,7 @@ class ProductController extends Controller
             return redirect()->route('products.index')->with(['success' => 'Produk Berhasil Dipulihkan!']);
         }
 
-        // app/Http/Controllers/ProductController.php
+     
 
 /**
              * Menampilkan daftar produk yang diarsip (Soft Deleted)

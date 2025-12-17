@@ -39,7 +39,7 @@ class PurchaseController extends Controller
     public function create(): View
     {
         // REVISI/PERBAIKAN: Mengganti potential Product::active() dengan withoutTrashed()
-        $products = Product::withoutTrashed()->get();
+        $products = Product::get();
         $suppliers = Supplier::orderBy('supplier_name')->get(); 
 
         return view('purchases.create', compact('products', 'suppliers'));
@@ -217,8 +217,7 @@ class PurchaseController extends Controller
             });
 
             $message = "Purchase #{$purchase->id} voided. ";
-            // Cek status lama untuk pesan (lebih akurat menggunakan $purchase->wasChanged('status') atau status lama)
-            // Karena kita tidak bisa mendapatkan status lama di luar transaction tanpa refresh, kita asumsikan jika void berhasil dan status sebelumnya 'done' maka stok reverted.
+            
             $message .= ($purchase->status_was == 'done') ? "Stock reverted." : "No stock adjustment needed.";
             
             return redirect()
@@ -240,7 +239,7 @@ class PurchaseController extends Controller
         }
         
         $products = Product::where('supplier_id', $supplierId)
-                            // REVISI: Mengganti active() dengan withoutTrashed()
+                           
                            ->withoutTrashed() 
                            ->orderBy('title', 'asc') 
                            ->get(['id', 'title', 'cost_price', 'stock']); 

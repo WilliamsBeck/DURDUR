@@ -470,26 +470,26 @@
 }
 
 .badge-status {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-size: 12px;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
-    gap: 5px; /* Jarak antara ikon dan tulisan */
-    text-transform: uppercase;
+    gap: 6px;
 }
 
-/* Style untuk VOID (Merah) */
 .badge-void {
-    background-color: #ffe5e5; /* Merah muda transparan */
-    color: #d9534f;           /* Tulisan merah tua */
-    border: 1px solid #d9534f;
+    background-color: #dc3545;
+    color: #fff;
 }
 
-/* Style untuk CHECK (Hijau/Lime) */
+.badge-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
 .badge-check {
-    background-color: #f0fff0; /* Hijau muda transparan */
-    color: #28a745;           /* Tulisan hijau tua */
-    border: 1px solid #28a745;
+    background-color: #28a745;
+    color: #fff;
 }

@@ -62,7 +62,7 @@
             <form method="GET" action="{{ route('transactions.index') }}" class="m-0">
                 <div class="search-bar-new">
                     <i class="fas fa-search"></i>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search Transaction Date">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search Transaction ID">
                 </div>
             </form>
         </div>
