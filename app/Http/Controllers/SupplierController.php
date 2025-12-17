@@ -38,7 +38,7 @@ class SupplierController extends Controller
     {
         $request->validate([
             'supplier_name'    => 'required|min:3',
-            'pic_supplier'     => 'nullable|string',
+            'pic_supplier'     => 'required|string',
             'supplier_email'   => 'nullable|email',
             'supplier_phone'   => 'nullable|numeric',
             'supplier_address' => 'nullable|string',
@@ -63,7 +63,7 @@ class SupplierController extends Controller
     {
         $request->validate([
             'supplier_name'    => 'required|min:3',
-            'pic_supplier'     => 'nullable|string',
+            'pic_supplier'     => 'required|string',
             'supplier_email'   => 'nullable|email',
             'supplier_phone'   => 'nullable|numeric',
             'supplier_address' => 'nullable|string',
