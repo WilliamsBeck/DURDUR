@@ -172,8 +172,7 @@ class ReportController extends Controller
     public function remainingStock(Request $request): View
     {
         // 1. Query Dasar Produk (Load relasi kategori)
-        // Gunakan withTrashed() jika ingin melihat stok produk yang sudah dihapus juga, 
-        // tapi biasanya laporan stok aktif tidak pakai withTrashed(). Sesuaikan kebutuhan.
+        
         $query = Product::with('category_product');
 
         // 2. Filter Search (Sesuai Desain)

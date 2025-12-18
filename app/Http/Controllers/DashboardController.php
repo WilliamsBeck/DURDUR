@@ -16,11 +16,19 @@ class DashboardController extends Controller
     {
         // 1. PENDAPATAN HARI INI
         $pendapatanHariIni = SalesTransaction::whereDate('created_at', Carbon::today())
+            ->where('status', '!=', 'void')   
             ->sum('grand_total');
             
         // 1.5. TOTAL PRODUK TERJUAL HARI INI
         $totalProdukTerjualHariIni = SalesTransactionDetail::whereDate('created_at', Carbon::today())
+            ->whereHas('transaction', function($query) {
+                $query->where('status', '!=', 'void');
+                })  
             ->sum('quantity');
+
+        $totalTransaksiHariIni = SalesTransaction::whereDate('created_at', Carbon::today())
+            ->where('status', '!=', 'void')
+            ->count();
 
         // 2. GRAFIK PENJUALAN 7 HARI TERAKHIR
         $tanggal7Hari = [];
@@ -43,6 +51,9 @@ class DashboardController extends Controller
                 DB::raw('SUM(grand_total) as total_omzet') 
             )
             ->whereDate('created_at', Carbon::today())
+            ->whereHas('transaction', function($query) {
+                $query->where('status', '!=', 'void');
+            })
             ->groupBy('product_id')
             ->orderByDesc('total_quantity') 
             ->limit(3)
@@ -61,6 +72,7 @@ class DashboardController extends Controller
         return view('dashboard.index', compact(
             'pendapatanHariIni',
             'totalProdukTerjualHariIni',
+            'totalTransaksiHariIni',
             'tanggal7Hari',
             'penjualan7Hari',
             'produkTertinggi',

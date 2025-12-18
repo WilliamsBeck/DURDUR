@@ -41,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
 
     // REPORTS
     Route::prefix('reports')->name('reports.')->group(function() {
-        Route::get('/', [ReportController::class, 'index'])->name('sales');
+        Route::get('/sales', [ReportController::class, 'index'])->name('sales');
         Route::get('/purchasement', [ReportController::class, 'purchasement'])->name('purchasement');
         Route::get('/product-sales', [ReportController::class, 'productSales'])->name('product_sales');
         Route::get('/remaining-stock', [ReportController::class, 'remainingStock'])->name('remaining_stock');

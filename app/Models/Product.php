@@ -30,7 +30,7 @@ class Product extends Model
     ];
 
     /**
-     * Relasi ke Supplier. 
+     * Relasi ke category_product
      */
     public function category_product()
         {
