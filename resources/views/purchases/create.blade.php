@@ -1,20 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- Load CSS Form --}}
 <link rel="stylesheet" href="{{ asset('css/transaction-form.css') }}">
 
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            
-            {{-- Container Utama (.form-card) --}}
             <div class="form-card">
-
-                {{-- Header Title --}}
                 <h3 class="page-title-form">Create New Purchase Transaction</h3>
 
-                {{-- ERROR MESSAGES --}}
                 @if ($errors->any())
                     <div class="alert alert-danger mb-4 rounded-3">
                         <ul class="mb-0">
@@ -30,79 +24,59 @@
 
                     {{-- BAGIAN 1: INFORMASI UMUM --}}
                     <div class="row g-4 mb-4">
-                        {{-- Created By (Readonly) --}}
                         <div class="col-md-6">
                             <label class="form-label">Created By</label>
                             <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
                         </div>
 
-                        {{-- Transaction Date (Readonly) --}}
                         <div class="col-md-6">
                             <label class="form-label">Transaction Date</label>
                             <input type="text" class="form-control" value="{{ now()->format('d F Y - H:i:s') }}" readonly>
                         </div>
                         
-                        {{-- Supplier Select --}}
                         <div class="col-md-12">
                             <label class="form-label">Supplier</label>
                             <select name="supplier_id" id="supplier-select" class="form-select @error('supplier_id') is-invalid @enderror" required>
-                                <option value="">-- Choose Supplier --</option>
+                                <option value="">-- Choose Supplier (or select product first) --</option>
                                 @foreach ($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
                                         {{ $supplier->supplier_name }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('supplier_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
 
                     {{-- BAGIAN 2: DAFTAR PRODUK --}}
                     <div class="product-section-title">Products to Purchase</div>
 
-                    {{-- Header Grid (#product-rows-header) --}}
                     <div id="product-rows-header">
-                        <div>Product</div>             {{-- 4fr --}}
-                        <div>Unit Cost</div>           {{-- 2fr --}}
-                        <div>Quantity</div>            {{-- 2fr --}}
-                        <div>Subtotal</div>            {{-- 2fr --}}
-                        <div class="text-center"></div> {{-- 0.5fr (Action) --}}
+                        <div>Product</div>
+                        <div>Unit Cost</div>
+                        <div>Quantity</div>
+                        <div>Subtotal</div>
+                        <div class="text-center"></div>
                     </div>
 
-                    {{-- Container Baris Produk --}}
                     <div id="product-rows-container">
-                        {{-- Rows will be added via JS --}}
+                        {{-- Baris akan ditambah via JS --}}
                     </div>
 
-                    {{-- Tombol Tambah Produk --}}
-                    <button type="button" class="btn-add-product mt-3" id="add-product-btn" disabled>
+                    <button type="button" class="btn-add-product mt-3" id="add-product-btn">
                         + Add Product
                     </button>
 
-                    {{-- BAGIAN 3: TOTAL & TOMBOL AKSI (.form-actions) --}}
+                    {{-- BAGIAN 3: TOTAL & AKSI --}}
                     <div class="form-actions">
-                        
-                        {{-- Grand Total Display --}}
                         <div id="grand-total-display">
                             Grand Total: <span id="grand-total-text">Rp 0</span>
                         </div>
                         
-                        {{-- Hidden Input Total Cost --}}
                         <input type="hidden" name="total_cost" id="total-cost-input" value="0">
 
-                        {{-- Tombol Cancel --}}
-                        <a href="{{ route('purchases.index') }}" class="btn-cancel">
-                            Cancel
-                        </a>
-
-                        {{-- Tombol Save --}}
-                        <button type="submit" class="btn-save" id="checkout-btn" disabled>
-                            Save Purchase
-                        </button>
+                        <a href="{{ route('purchases.index') }}" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-save" id="checkout-btn">Save Purchase</button>
                     </div>
-
                 </form>
             </div>
         </div>
@@ -112,15 +86,15 @@
 
 @push('scripts')
 <script>
-    // --- ELEMENT REFERENCES ---
-    const container = document.getElementById('product-rows-container'); // Container baris produk
+    // Ambil data produk awal dari server (dikirim dari Controller)
+    const allProducts = @json($products);
+    
+    const container = document.getElementById('product-rows-container');
     const addBtn = document.getElementById('add-product-btn');
     const grandTotalText = document.getElementById('grand-total-text');
     const totalCostInput = document.getElementById('total-cost-input');
     const supplierSelect = document.getElementById('supplier-select'); 
-    const checkoutBtn = document.getElementById('checkout-btn');
 
-    // Format Rupiah Helper
     const formatRupiah = (num) => 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
 
     // --- 1. CORE LOGIC ---
@@ -128,175 +102,170 @@
     function calculateGrandTotal() {
         let total = 0;
         document.querySelectorAll('.product-row').forEach(row => {
-            // Purchase berbeda dgn Sales: User bisa input harga beli (Unit Cost)
             const costPrice = parseFloat(row.querySelector('.unit-cost-input').value) || 0;
             const qty = parseInt(row.querySelector('.qty-input').value) || 0;
             const subtotal = costPrice * qty;
-            
-            // Update Subtotal Text
             row.querySelector('.subtotal-text').innerText = formatRupiah(subtotal);
             total += subtotal;
         });
-        
         grandTotalText.innerText = formatRupiah(total);
         totalCostInput.value = total;
     }
 
-    // --- 2. AJAX & PRODUCT LOADING ---
-
-    async function loadProductsBySupplier(supplierId) {
-        if (!supplierId) return [];
+    // Fungsi Fetch Supplier via AJAX
+    async function fetchSupplierByProduct(productId) {
+        if (!productId) return null;
         try {
-            // Placeholder URL replacement
-            const baseUrl = "{{ route('purchases.products-by-supplier', ['supplierId' => 0]) }}";
-            const url = baseUrl.replace('/0', '/' + supplierId);
-
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
+            const response = await fetch(`/get-supplier-by-product/${productId}`);
+            if (!response.ok) throw new Error('Not found');
+            return await response.json();
         } catch (error) {
-            console.error('Error fetching products:', error);
-            return [];
+            console.error('Error fetching supplier:', error);
+            return null;
         }
     }
 
-    // Populate dropdown produk di SEMUA baris yang ada
-    function populateProductDropdowns(products) {
-        // Reset tombol Add & Checkout jika list kosong
-        const hasProducts = products.length > 0;
-        addBtn.disabled = !hasProducts;
-        checkoutBtn.disabled = !hasProducts;
+    // --- 2. DROPDOWN SYNC LOGIC ---
 
-        // Loop semua dropdown product yang ada di form
-        document.querySelectorAll('.product-select').forEach(select => {
-            const currentVal = select.value;
-            
-            // Reset options
-            select.innerHTML = '<option value="">-- Select Product --</option>';
-            
-            products.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.textContent = p.title;
-                opt.dataset.costPrice = p.cost_price; // Simpan harga beli
-                if (p.id == currentVal) opt.selected = true;
-                select.appendChild(opt);
-            });
+    // Fungsi untuk memperbarui isi dropdown produk di baris tertentu
+    function updateProductOptions(selectElement, supplierId, currentProductId = null) {
+        // Jika supplier dipilih, filter produk. Jika tidak, tampilkan semua.
+        const filtered = supplierId 
+            ? allProducts.filter(p => p.supplier_id == supplierId)
+            : allProducts;
 
-            // Trigger reset row values jika produk yang dipilih sebelumnya hilang
-            if(select.value !== currentVal) {
-                const row = select.closest('.product-row');
-                if(row) {
-                    row.querySelector('.unit-cost-input').value = 0;
-                    row.querySelector('.qty-input').value = 1;
-                    row.querySelector('.subtotal-text').innerText = 'Rp 0';
-                }
-            }
+        let optionsHTML = '<option value="">-- Select Product --</option>';
+        filtered.forEach(p => {
+            const selected = p.id == currentProductId ? 'selected' : '';
+            optionsHTML += `<option value="${p.id}" data-cost-price="${p.cost_price}" ${selected}>${p.title}</option>`;
         });
-        
-        calculateGrandTotal();
+        selectElement.innerHTML = optionsHTML;
     }
 
     // --- 3. ROW MANAGEMENT ---
 
     function addRow() {
-    const index = Date.now();
-    const row = document.createElement('div');
-    row.className = 'product-row'; 
+        const index = Date.now();
+        const row = document.createElement('div');
+        row.className = 'product-row'; 
 
-    const existingSelect = document.querySelector('.product-select');
-    const optionsHTML = existingSelect 
-        ? existingSelect.innerHTML 
-        : '<option value="">-- Select Product --</option>'; // Pastikan value kosong
+        row.innerHTML = `
+            <div>
+                <select name="products[${index}][id]" class="form-select product-select" required></select>
+            </div>
+            <div>
+                <input type="number" name="products[${index}][price]" class="form-control unit-cost-input" value="0" min="0" required>
+            </div>
+            <div>
+                <input type="number" name="products[${index}][quantity]" class="form-control qty-input" value="1" min="1" required>
+            </div>
+            <div class="subtotal-text">Rp 0</div>
+            <div class="d-flex justify-content-center">
+                <button type="button" class="btn-remove-product remove-row" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
 
-    row.innerHTML = `
-        <div>
-            <select name="products[${index}][id]" class="form-select product-select" required>
-                ${optionsHTML}
-            </select>
-        </div>
-
-        <div>
-            <input type="number" 
-                   name="products[${index}][price]" 
-                   class="form-control unit-cost-input" 
-                   value="0" min="0" required> </div>
-
-        <div>
-            <input type="number" 
-                   name="products[${index}][quantity]" 
-                   class="form-control qty-input" 
-                   value="1" min="1" required> </div>
-
-        <div class="subtotal-text">Rp 0</div>
-
-        <div class="d-flex justify-content-center">
-            <button type="button" class="btn-remove-product remove-row" title="Remove">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-
-    container.appendChild(row);
-    calculateGrandTotal();
-}
+        container.appendChild(row);
+        
+        // Isi dropdown produk di baris baru ini sesuai supplier yang sudah terpilih (jika ada)
+        const newSelect = row.querySelector('.product-select');
+        updateProductOptions(newSelect, supplierSelect.value);
+        
+        calculateGrandTotal();
+    }
 
     // --- 4. EVENT LISTENERS ---
 
-    // Supplier Change -> Load Products
-    supplierSelect.addEventListener('change', async function() {
+    // A. Saat Supplier diubah secara manual
+    supplierSelect.addEventListener('change', function() {
         const supplierId = this.value;
-        const products = await loadProductsBySupplier(supplierId);
-        populateProductDropdowns(products);
+        // Update semua baris dropdown produk agar sesuai supplier yang dipilih
+        document.querySelectorAll('.product-select').forEach(select => {
+            updateProductOptions(select, supplierId, select.value);
+        });
     });
 
-    // Add Row Button
+    // B. Klik tombol tambah baris
     addBtn.addEventListener('click', addRow);
 
-    // Event Delegation untuk Input/Change di dalam Row
-    container.addEventListener('change', function(e) {
-        // Jika Produk dipilih -> Set Default Unit Cost
+    // C. Event Delegation untuk aksi di dalam baris
+    container.addEventListener('change', async function(e) {
+        // C.1 Saat Produk Dipilih
         if (e.target.classList.contains('product-select')) {
             const row = e.target.closest('.product-row');
-            const option = e.target.selectedOptions[0];
-            const cost = option.dataset.costPrice || 0;
-            
-            // Set harga beli default ke input
-            row.querySelector('.unit-cost-input').value = cost;
+            const productId = e.target.value;
+
+            if (productId) {
+                const supplierData = await fetchSupplierByProduct(productId);
+                
+                if (supplierData) {
+                    const currentSupplier = supplierSelect.value;
+                    
+                    // Jika supplier masih kosong, isi otomatis dan filter produk lainnya
+                    if (!currentSupplier) {
+                        supplierSelect.value = supplierData.id;
+                        // Trigger event change manual agar semua dropdown produk tersaring
+                        supplierSelect.dispatchEvent(new Event('change'));
+                    } 
+                    // Jika ganti produk tapi supplier beda dari yang sudah terpilih
+                    else if (currentSupplier != supplierData.id) {
+                        alert(`Warning: This product belongs to ${supplierData.supplier_name}. Please stay with the same supplier.`);
+                    }
+                }
+
+                // Set harga default
+                const option = e.target.selectedOptions[0];
+                row.querySelector('.unit-cost-input').value = option.dataset.costPrice || 0;
+            }
             calculateGrandTotal();
         }
     });
 
+    // D. Input Qty/Price
     container.addEventListener('input', function(e) {
-        // Jika Qty atau Unit Cost berubah -> Hitung Ulang
         if (e.target.classList.contains('qty-input') || e.target.classList.contains('unit-cost-input')) {
             calculateGrandTotal();
         }
     });
 
+    // E. Hapus Baris
     container.addEventListener('click', function(e) {
-        // Remove Row
         if (e.target.classList.contains('remove-row') || e.target.closest('.remove-row')) {
             const row = e.target.closest('.product-row');
-            if(row) {
+            if (row) {
                 row.remove();
+                if (container.children.length === 0) addRow();
                 calculateGrandTotal();
-                
-                // Jika kosong, tambah 1 baris baru
-                if (container.children.length === 0) {
-                    addRow();
-                }
             }
         }
     });
 
-    // --- INIT ---
-    document.addEventListener('DOMContentLoaded', function() {
-        addRow(); // Tambah baris pertama
-        
-        // Jika kembali dari error validation (old input ada), trigger change supplier
-        if (supplierSelect.value) {
-            supplierSelect.dispatchEvent(new Event('change'));
+    // Init: Baris Pertama
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Ambil ID dari PHP (jika ada)
+        const preselectedId = "{{ $selectedProductId ?? '' }}";
+
+        if (preselectedId) {
+            // 1. Tambah baris baru
+            addRow(); 
+            
+            // 2. Cari dropdown di baris yang baru dibuat
+            const firstSelect = container.querySelector('.product-select');
+            if (firstSelect) {
+                // 3. Set nilainya sesuai ID dari Dashboard
+                firstSelect.value = preselectedId;
+                
+                // 4. Trigger event 'change' secara manual agar:
+                //    - Supplier otomatis terisi (via AJAX)
+                //    - Harga otomatis muncul
+                //    - List produk lainnya tersaring sesuai supplier
+                firstSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        } else {
+            // Jika buka manual tanpa dari Dashboard, buat baris kosong biasa
+            addRow();
         }
     });
 

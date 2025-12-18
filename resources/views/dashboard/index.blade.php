@@ -174,8 +174,9 @@
                                     <td class="fw-bold">{{ $produk->stock }}</td>
                                     <td class="fw-bold">{{ $produk->supplier->supplier_name ?? '-' }}</td>
                                     <td class="px-4">
-                                        {{-- Tombol Purchase Ungu --}}
-                                        <a href="{{ route('purchases.create') }}" class="btn-purchase-purple">
+                                       
+                                        <a href="{{ route('purchases.create', ['product_id' => $produk->id]) }}" 
+                                            class="btn-purchase-purple">
                                             Purchase
                                         </a>
                                     </td>

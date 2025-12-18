@@ -15,7 +15,7 @@ class PurchaseDetail extends Model
         'purchase_id',
         'product_id',
         'quantity',
-        'price',    // REVISI: Sesuai schema (sebelumnya unit_price)
+        'price',    
         'subtotal',
     ];
     
@@ -26,6 +26,6 @@ class PurchaseDetail extends Model
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id')->withTrashed();
     }
 }

@@ -76,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
 
     // PURCHASE TRANSACTIONS
     Route::get('/purchases/products-by-supplier/{supplierId}', [PurchaseController::class, 'getProductsBySupplier'])->name('purchases.products-by-supplier');
+    Route::get('/get-supplier-by-product/{productId}', [PurchaseController::class, 'getSupplierByProduct']);
     Route::put('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
     Route::get('purchases/{purchase}/void', [PurchaseController::class, 'voidForm'])->name('purchases.voidForm');
     Route::post('purchases/{purchase}/void', [PurchaseController::class, 'void'])->name('purchases.void');

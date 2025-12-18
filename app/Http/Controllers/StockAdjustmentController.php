@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class StockAdjustmentController extends Controller
 {
-    // Tampilan Index (Gambar 5 / 0)
+
     public function index(Request $request)
     {
         $query = StockAdjustment::with('user');
@@ -40,7 +40,7 @@ class StockAdjustmentController extends Controller
         return view('stock_adjustments.index', compact('adjustments'));
     }
 
-    // Tampilan Create Form (Gambar 2)
+    // Tampilan Create Form 
     public function create()
     {
         // Ambil semua produk untuk dropdown
@@ -53,7 +53,7 @@ class StockAdjustmentController extends Controller
         return view('stock_adjustments.create', compact('products', 'currentUser', 'currentTime'));
     }
 
-    // Proses Simpan Data (Paling Penting)
+    // Proses Simpan Data 
     public function store(Request $request)
     {
         $request->validate([

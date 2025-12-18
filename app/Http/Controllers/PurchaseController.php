@@ -36,13 +36,18 @@ class PurchaseController extends Controller
     }
 
     // ================= CREATE =================
-    public function create(): View
+    // ================= CREATE =================
+    public function create(Request $request): View
     {
-        // REVISI/PERBAIKAN: Mengganti potential Product::active() dengan withoutTrashed()
-        $products = Product::get();
+        // Menggunakan withoutTrashed() agar produk yang dihapus tidak muncul
+        $products = Product::withoutTrashed()->orderBy('title', 'asc')->get();
         $suppliers = Supplier::orderBy('supplier_name')->get(); 
+        
+        // Tangkap ID produk dari URL (query parameter 'product_id')
+        $selectedProductId = $request->query('product_id');
 
-        return view('purchases.create', compact('products', 'suppliers'));
+        // Kirim data ke view
+        return view('purchases.create', compact('products', 'suppliers', 'selectedProductId'));
     }
 
     // ================= STORE (Status Awal: Pending) =================
@@ -246,4 +251,21 @@ class PurchaseController extends Controller
 
         return response()->json($products);
     }
+
+    // ================= AJAX: GET SUPPLIER BY PRODUCT =================
+public function getSupplierByProduct($productId)
+{
+    // Ambil produk beserta data suppliernya
+    $product = Product::with('supplier')->find($productId);
+
+    if (!$product || !$product->supplier) {
+        return response()->json(['message' => 'Supplier not found'], 404);
+    }
+
+    // Kembalikan data supplier
+    return response()->json([
+        'id' => $product->supplier->id,
+        'supplier_name' => $product->supplier->supplier_name
+    ]);
+}
 }
