@@ -18,7 +18,7 @@ use App\Http\Controllers\UserController; // Pastikan ini di-use
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('z');
 });
 
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
